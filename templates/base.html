@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+	<!-- Stay out of my territory -->
+	<head>
+		<title>{{title}}</title>
+		<!--<link rel="shortcut icon" href="#">-->
+		<link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+		<meta name="viewport" content="initial-scale=1">
+	</head>
+	<body>
+{% block title %}{% endblock %}
+
+{#
+{% block head %}
+{{ super() }}
+{% endblock head %}
+#}
+
+<div class="container">
+	<h1>{{title}}</h1>
+	<p>
+	{% if current_user.is_authenticated() %}
+	Hello {{ current_user.name }}. <a href="{{url_for('logout')}}">Log out</a>
+	{% else %}
+	<a href="{{url_for('.login')}}">Log in</a>
+	{% endif %}
+	</p>
+	{% block alerts %}
+	{% for message in get_flashed_messages() %}
+	<div class="alert alert-info" role="alert">{{ message }}</div>
+	{% endfor %}
+	{% endblock %}
+	{% block main_content %}{% endblock %}
+</div>
+	</body>
+</html>

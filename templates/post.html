@@ -1,0 +1,8 @@
+{%extends 'base.html'%}
+{%block main_content %}
+{% if post.type == 0 %}
+<div class="postcontent">{{post.content}}</div>
+{% endif %}
+<span class="postdetails">Posted by <a href="/u/{{post.user}}">{{post.user}}</a> at {{post.created}}</span></p>
+</div>
+{%endblock%}
