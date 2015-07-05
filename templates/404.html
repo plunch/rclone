@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block main_content %}
+<h4>Whatever you are looking for over at '{{request.path}}' does not exist.</h4>
+<p>Or maybe it's just one large conspiracy! Discuss it <a href="{{url_for('.section', section='conspiracy')}}">here</a></p>
+<a href="{{url_for('.index')}}">Go somewhere safe</a>
+{% endblock %}

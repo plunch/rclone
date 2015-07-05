@@ -431,16 +431,22 @@ def newpost(section):
 def newsection():
     key = get_form_key()
     if request.method == 'POST':
-        s = request.form['section']
+        s = request.form['section'].lower()
         d = request.form['description']
         tok = request.form['csrftoken']
         if tok != key:
             abort(400)
 
         valid = True
+        if s == 'conspiracy':
+            flash("It's not going to be that easy...", category='error')
+            valid=False
         if not s.replace('_', '1').replace('-', '1').isalnum():
-            flash("Invalid name section name. Only alphanumeric characters , '_' and, '-' are accepted", category='error')
+            if valid: flash("Invalid name section name. Only alphanumeric characters , '_' and, '-' are accepted", category='error')
             valid = False
+        if len(d) < 16:
+            flash("At least provide a bit of a description. How fun is it with a section about nothing?", category='error')
+            valid=False
 
         if valid:
             cur = g.db.cursor()
@@ -459,6 +465,18 @@ def newsection():
 def favicon():
 	return send_from_directory(os.path.join(app.root_path, 'static'),
 			'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+@app.errorhandler(404)
+def not_found(e):
+    return render_template('404.html', title='Not found'), 404
+
+@app.errorhandler(500)
+def server_error(e):
+    return render_template('500.html', title='Something has gone wrong'), 500
+
+@app.errorhandler(Exception)
+def defaultHandler(e):
+    return render_template('500.html', title='Something has gone wrong'), 500
 
 if __name__ == "__main__":
         app.run(host='0.0.0.0')

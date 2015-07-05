@@ -1,6 +1,11 @@
 {%extends 'base.html'%}
 {%block main_content %}
 <div class="postlist">
+	{% if current_user.is_authenticated() %}
+	<p>
+	Is something missing? <a href="{{url_for('.newsection')}}">Create a new section!</a>
+	</p>
+	{% endif %}
 	<table>
 	{% for section in sections %}
 	<tr>
