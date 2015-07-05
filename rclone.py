@@ -470,13 +470,21 @@ def favicon():
 def not_found(e):
     return render_template('404.html', title='Not found'), 404
 
+@app.errorhandler(400)
+def error400(e):
+    return render_template('400.html', title='Invalid request', what='Your browser and the web server doesn\'t seem to get along'), 400
+
+@app.errorhandler(403)
+def error403(e):
+    return render_template('400.html', title='Not allowed', what='You are trying to perform an action that just isnt allowed'), 403
+
 @app.errorhandler(500)
 def server_error(e):
     return render_template('500.html', title='Something has gone wrong'), 500
 
 @app.errorhandler(Exception)
 def defaultHandler(e):
-    return render_template('500.html', title='Something has gone wrong'), 500
+    return render_template('500.html', title='Some programmer has made an assumption that just wasn\'t valid.'), 500
 
 if __name__ == "__main__":
         app.run(host='0.0.0.0')
