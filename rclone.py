@@ -16,6 +16,11 @@ lm.init_app(app)
 
 lm.login_view = 'login'
 
+class AttrDict(dict):
+    def __init__(self, *args, **kwargs):
+        super(AttrDict, self).__init__(*args, **kwargs)
+        self.__dict__ = self
+
 @lm.user_loader
 def load_user(userid):
     cur = g.db.cursor()
@@ -30,7 +35,8 @@ def load_user(userid):
 @app.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    next = request.args.get('next')
+    return redirect(next or url_for('index'))
 
 def get_form_key():
     if 'csrfkey' not in session:
@@ -156,9 +162,9 @@ def index():
 @app.route('/s/<string:section>')
 def section(section=None):
         if section is None:
-            cur = g.db.cursor()
+            cur = g.db.cursor(MySQLdb.cursors.DictCursor)
             cur.execute('select s.name, s.description from sections s')
-            sections = [dict(name=row[0], description=row[1]) for row in cur.fetchall()]
+            sections = cur.fetchall()
             return render_template('allsections.html', title='All sections', sections=sections)
         cur = g.db.cursor()
         cur.execute("select p.id as id, p.title as title, p.content as content, p.type as type, u.name as username, p.created as created from posts p \
@@ -196,24 +202,34 @@ def post(id):
     p.created = row[5]
     return render_template('post.html', title=p.title, post=p)
 
-@app.route('/u/<user>')
-def user(user):
-    cur = g.db.cursor()
-    cur.execute("select p.id, p.title as title, p.content as content, p.type as type, u.name as username, p.created as created from posts p \
+@app.route('/u/<string:username>')
+def user(username):
+    cur = g.db.cursor(MySQLdb.cursors.DictCursor)
+    cur.execute("select p.id as id, p.title as title, p.content as content, p.type as type, u.name as username, p.created as created from posts p \
                  inner join users u on u.id = p.user \
                  inner join sections s on s.id = p.section \
-                 where u.name = %s", (user,))
+                 where u.name = %s", (username,))
     posts = []
-    for row in cur.fetchall():
+    for row in (AttrDict(d) for d in cur.fetchall()):
         p = Post()
-        p.id = row[0]
-        p.title = row[1]
-        p.content = row[2]
-        p.type = row[3]
-        p.user = row[4]
-        p.created = row[5]
+        p.id = row.id
+        p.title = row.title
+        p.content = row.content
+        p.type = row.type
+        p.user = row.username
+        p.created = row.created
         posts.append(p)
-    return render_template('sectionlist.html', title='Posts made by ' + user, posts=posts)
+
+    cur.execute("select * from users where name = %s limit 1", (username,))
+    user = AttrDict(cur.fetchall()[0])
+    if current_user != None and current_user.is_authenticated():
+        # A logged in user is viewing another users page
+        if user.id == current_user.id:
+            # A logged in user is viewing his own page
+            pass
+        pass
+
+    return render_template('userpage.html', title='Posts made by ' + username, posts=posts, user=user)
 
 @app.route('/s/<string:section>/post', methods=['GET','POST'])
 @login_required

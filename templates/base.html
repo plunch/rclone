@@ -20,9 +20,9 @@
 	<h1>{{title}}</h1>
 	<p>
 	{% if current_user.is_authenticated() %}
-	Hello {{ current_user.name }}. <a href="{{url_for('logout')}}">Log out</a>
+	Hello {{ current_user.name }}. <a href="{{url_for('logout', next=request.path)}}">Log out</a>
 	{% else %}
-	<a href="{{url_for('.login')}}">Log in</a>
+	<a href="{{url_for('.login', next=request.path)}}">Log in</a>
 	{% endif %}
 	</p>
 	{% block alerts %}
