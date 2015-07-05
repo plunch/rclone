@@ -1,4 +1,5 @@
 import MySQLdb
+from MySQLdb.cursors import DictCursor
 import datetime
 import os
 import base64
@@ -18,20 +19,48 @@ lm.init_app(app)
 
 lm.login_view = 'login'
 
+
+# Do some function decoration, as it's nicer to always have an AttrDict for
+# accessing the results of the DictCursor.
 class AttrDict(dict):
     def __init__(self, *args, **kwargs):
         super(AttrDict, self).__init__(*args, **kwargs)
         self.__dict__ = self
+
+def fetchalldecorator(method):
+    def decorate_fetchall(self=None):
+        return (AttrDict(d) for d in method(self))
+    return decorate_fetchall
+
+def fetchonedecorator(method):
+    def decorate_fetchone(self=None):
+        return AttrDict(method(self))
+    return decorate_fetchone
+
+def fetchmanydecorator(method):
+    def decorate_fetchmany(self=None, size=0):
+        return (AttrDict(d) for d in method(self, size))
+    return decorate_fetchmany
+
+
+DictCursor.fetchall = fetchalldecorator(DictCursor.fetchall)
+DictCursor.fetchone = fetchonedecorator(DictCursor.fetchone)
+DictCursor.fetchmany = fetchmanydecorator(DictCursor.fetchmany)
+
+DictCursor.fetchallDict = fetchalldecorator(DictCursor.fetchallDict)
+DictCursor.fetchoneDict = fetchonedecorator(DictCursor.fetchoneDict)
+DictCursor.fetchmanyDict = fetchmanydecorator(DictCursor.fetchmanyDict)
+
 
 @lm.user_loader
 def load_user(userid):
     cur = g.db.cursor()
     cur.execute('select id, name, created from users where id = %s limit 1', (userid,))
     u = User()
-    r = cur.fetchall()[0]
-    u.id = r[0]
-    u.name = str(r[1])
-    u.created=r[2]
+    r = cur.fetchone()
+    u.id = r.id
+    u.name = str(r.name)
+    u.created=r.created
     return u
 
 @app.route('/logout')
@@ -76,10 +105,10 @@ def login():
                 return render_template('login.html', title='login', key=key)
 
             u = User()
-            r = cur.fetchall()[0]
-            u.id = r[0]
-            u.name = str(r[1])
-            u.created=r[2]
+            r = cur.fetchone()
+            u.id = r.id
+            u.name = str(r.name)
+            u.created=r.created
 
             login_user(u)
 
@@ -126,13 +155,13 @@ def create_user():
                 if cur.rowcount == 0:
                     abort(500)
                 u = User()
-                r = cur.fetchall()[0]
-                u.id = r[0]
-                u.name = str(r[1])
-                u.created=r[2]
+                r = cur.fetchone()
+                u.id = r.id
+                u.name = str(r.name)
+                u.created=r.created
 
                 cur.execute('select id from user_line_types where visible = 1 and name = "email"')
-                emailid = cur.fetchall()[0][0]
+                emailid = cur.fetchone().id
                 cur.execute('insert into user_lines (user, type, value) values (%s, %s, %s)', (u.id, emailid, email))
 
                 login_user(u)
@@ -156,18 +185,25 @@ def forgot_password():
             flash('Email address is not valid')
         else:
 
-            cur = g.db.cursor(MySQLdb.cursors.DictCursor)
+            cur = g.db.cursor()
             cur.execute('select u.id as id, u.name as name from users u \
                         inner join user_lines ul on ul.user = u.id \
                         inner join user_line_types ult on ult.id = ul.type \
                         where ul.visible = 1 and ult.visible = 1 \
                         and ult.name = "email" and ul.value = %s limit 1', (email,))
             if cur.rowcount > 0:
-                user = AttrDict(cur.fetchall()[0])
+                user = cur.fetchone()
                 newpass = str(base64.standard_b64encode(os.urandom(16)))           
                 cur.execute('update users set password = %s where id = %s', (newpass, user.id))
                 g.db.commit()
-                m = Mailer(smtplib.SMTP('***REMOVED***'), 'rclone@perlundh.com')
+                smtp = smtplib.SMTP('***REMOVED***', 587)
+                smtp.ehlo()
+                smtp.starttls()
+                smtp.ehlo()
+                mu = 'plundh@perlundh.com'
+                mp = '***REMOVED***'
+                smtp.login(mu, mp)
+                m = Mailer(smtp, 'rclone@perlundh.com')
                 m.send_forgot_password(newpass, email, user)
                 m.close()
 
@@ -185,7 +221,8 @@ def before_request():
                     host='***REMOVED***',
                     user='rclone',
                     passwd='dummy',
-                    db='rclone'
+                    db='rclone',
+                    cursorclass=MySQLdb.cursors.DictCursor
                 )
 
 @app.teardown_request
@@ -202,7 +239,7 @@ def index():
 @app.route('/s/<string:section>')
 def section(section=None):
         if section is None:
-            cur = g.db.cursor(MySQLdb.cursors.DictCursor)
+            cur = g.db.cursor()
             cur.execute('select s.name, s.description from sections s')
             sections = cur.fetchall()
             return render_template('allsections.html', title='All sections', sections=sections)
@@ -214,12 +251,12 @@ def section(section=None):
         posts = []
         for row in cur.fetchall():
             p = Post()
-            p.id = row[0]
-            p.title = row[1]
-            p.content = row[2]
-            p.type = row[3]
-            p.user = row[4]
-            p.created = row[5]
+            p.id = row.id
+            p.title = row.title
+            p.content = row.content
+            p.type = row.type
+            p.user = row.username
+            p.created = row.created
             posts.append(p)
 
         return render_template('sectionlist.html', title=section, posts=posts)
@@ -227,19 +264,20 @@ def section(section=None):
 @app.route('/p/<int:id>')
 def post(id):
     cur = g.db.cursor()
-    cur.execute("select p.id, p.title, p.content, p.type, u.name, p.created from posts p \
+    cur.execute("select p.id as id, p.title as title, p.content as content, \
+                        p.type as type, u.name as name, p.created as created from posts p \
                  inner join users u on u.id = p.user \
                  where p.id = %s and p.visible = 1 limit 1", (id,))
     if cur.rowcount == 0:
         abort(404)
     p = Post()
-    row = cur.fetchall()[0]
-    p.id = row[0]
-    p.title = row[1]
-    p.content = row[2]
-    p.type = row[3]
-    p.user = row[4]
-    p.created = row[5]
+    row = cur.fetchone()
+    p.id = row.id
+    p.title = row.title
+    p.content = row.content
+    p.type = row.type
+    p.user = row.name
+    p.created = row.created
     return render_template('post.html', title=p.title, post=p)
 
 @app.route('/p/<int:id>/delete', methods=['POST'])
@@ -247,12 +285,12 @@ def post(id):
 def delete_post(id):
     key = get_form_key()
 
-    cur = g.db.cursor(MySQLdb.cursors.DictCursor)
+    cur = g.db.cursor()
     cur.execute('select * from posts where id = %s and visible = 1', (id,))
 
     if cur.rowcount == 0:
         abort(404)
-    post = AttrDict(cur.fetchall()[0])
+    post = cur.fetchone()
     if post.user != current_user.id:
         abort(403)
 
@@ -271,12 +309,12 @@ def delete_post(id):
 def edit_post(id):
     key = get_form_key()
 
-    cur = g.db.cursor(MySQLdb.cursors.DictCursor)
+    cur = g.db.cursor()
     cur.execute('select * from posts where id = %s', (id,))
 
     if cur.rowcount == 0:
         abort(404)
-    post = AttrDict(cur.fetchall()[0])
+    post = cur.fetchone()
     if post.user != current_user.id:
         abort(403)
     if post.type != 0:
@@ -298,7 +336,7 @@ def user(username):
                  inner join sections s on s.id = p.section \
                  where p.visible = 1 and u.name = %s", (username,))
     posts = []
-    for row in (AttrDict(d) for d in cur.fetchall()):
+    for row in cur.fetchall():
         p = Post()
         p.id = row.id
         p.title = row.title
@@ -309,7 +347,7 @@ def user(username):
         posts.append(p)
 
     cur.execute("select * from users where name = %s limit 1", (username,))
-    user = AttrDict(cur.fetchall()[0])
+    user = cur.fetchone()
     if current_user != None and current_user.is_authenticated():
         # A logged in user is viewing another users page
         if user.id == current_user.id:
@@ -323,14 +361,14 @@ def user(username):
 @login_required
 def newpost(section):
     cur = g.db.cursor()
-    cur.execute("select s.id, s.name, s.description from sections s where s.name = %s", (section,))
+    cur.execute("select s.id as id, s.name as name, s.description as description from sections s where s.name = %s", (section,))
     if cur.rowcount == 0:
         abort(404)
 
-    row = cur.fetchall()[0]
-    sectionid = row[0]
-    sectionname = row[1]
-    sectiondescription = row[2]
+    row = cur.fetchone()
+    sectionid = row.id
+    sectionname = row.name
+    sectiondescription = row.description
 
     if request.method == 'POST':
         title = request.form['title']
@@ -350,8 +388,8 @@ def newpost(section):
             if link.startswith(('http://', 'https://')):
                 cur.execute("insert into posts (section, type, title, content, user) values \
                          (%s, 1, %s, %s, %s)", (sectionid, title, link, current_user.id))
-                cur.execute("select LAST_INSERT_ID()")
-                postid = cur.fetchall()[0][0]
+                cur.execute("select LAST_INSERT_ID() as l")
+                postid = cur.fetchone().l
                 g.db.commit()
                 return redirect(url_for('.post', id=postid))
             else:
@@ -359,8 +397,8 @@ def newpost(section):
         else:
             cur.execute("insert into posts (section, type, title, content, user) values \
                         (%s, 0, %s, %s, %s)", (sectionid, title, content, current_user.id))
-            cur.execute("select LAST_INSERT_ID()")
-            postid = cur.fetchall()[0][0]
+            cur.execute("select LAST_INSERT_ID() as l")
+            postid = cur.fetchone().l
             g.db.commit()
             return redirect(url_for('.post', id=postid))
 
