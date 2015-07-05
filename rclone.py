@@ -150,23 +150,26 @@ def forgot_password():
         tok = request.form['csrftoken']
         if tok != key:
             abort(400)
+        if not email_valid(email):
+            flash('Email address is not valid')
+        else:
 
-        cur = g.db.cursor(MySQLdb.cursors.DictCursor)
-        cur.execute('select u.id as id, u.name as name from users u \
-                     inner join user_lines ul on ul.user = u.id \
-                     inner join user_line_types ult on ult.id = ul.type \
-                     where ul.visible = 1 and ult.visible = 1 \
-                     and ult.name = "email" and ul.value = %s limit 1', (email,))
-        if cur.rowcount > 0:
-            user = AttrDict(cur.fetchall()[0])
-            newpass = str(base64.standard_b64encode(os.urandom(16)))           
-            cur.execute('update users set password = %s where id = %s', (newpass, user.id))
-            g.db.commit()
+            cur = g.db.cursor(MySQLdb.cursors.DictCursor)
+            cur.execute('select u.id as id, u.name as name from users u \
+                        inner join user_lines ul on ul.user = u.id \
+                        inner join user_line_types ult on ult.id = ul.type \
+                        where ul.visible = 1 and ult.visible = 1 \
+                        and ult.name = "email" and ul.value = %s limit 1', (email,))
+            if cur.rowcount > 0:
+                user = AttrDict(cur.fetchall()[0])
+                newpass = str(base64.standard_b64encode(os.urandom(16)))           
+                cur.execute('update users set password = %s where id = %s', (newpass, user.id))
+                g.db.commit()
 
-        # ALWAYS show this message, otherwise some nefarious unknown kan
-        # figure out what email addresses we have..
-        flash('An email with information on how to reset your password has been sent')
-        return redirect(url_for('.login'))
+            # ALWAYS show this message, otherwise some nefarious unknown kan
+            # figure out what email addresses we have..
+            flash('An email with information on how to reset your password has been sent')
+            return redirect(url_for('.login'))
 
     return render_template('forgot_password.html', title='Forgot password', key=key)
 
