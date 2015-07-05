@@ -122,13 +122,16 @@ def create_user():
                 cur.execute("select id, name, created from users \
                             where name = %s and password = %s", (user, pwd))
                 if cur.rowcount == 0:
-                    abort(400)
-
+                    abort(500)
                 u = User()
                 r = cur.fetchall()[0]
                 u.id = r[0]
                 u.name = str(r[1])
                 u.created=r[2]
+
+                cur.execute('select id from user_line_types where visible = 1 and name = "email"')
+                emailid = cur.fetchall()[0][0]
+                cur.execute('insert into user_lines (user, type, value) values (%s, %s, %s)', (u.id, emailid, email))
 
                 login_user(u)
                 g.db.commit()
