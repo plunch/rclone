@@ -4,14 +4,14 @@ import datetime
 import os
 import base64
 import smtplib
-from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, send_from_directory
+from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, send_from_directory, config
 from flask.ext.login import LoginManager, login_user, logout_user, login_required, current_user
 from models.user import User
 from models.post import Post
 from forgot_password_email import Mailer
 
 app = Flask(__name__)
-app.secret_key='supersecret'
+app.config.from_pyfile('conf_rclone.cfg')
 
 lm = LoginManager()
 lm.session_protection = 'strong'
@@ -198,14 +198,14 @@ def forgot_password():
                 newpass = str(base64.standard_b64encode(os.urandom(16)))           
                 cur.execute('update users set password = %s where id = %s', (newpass, user.id))
                 g.db.commit()
-                smtp = smtplib.SMTP('***REMOVED***', 587)
+                smtp = smtplib.SMTP(app.config['SMTPHOST'], 587)
                 smtp.ehlo()
                 smtp.starttls()
                 smtp.ehlo()
-                mu = 'plundh@perlundh.com'
-                mp = '***REMOVED***'
+                mu = app.config['SMTPUSER']
+                mp = app.config['SMTPPWD']
                 smtp.login(mu, mp)
-                m = Mailer(smtp, 'rclone@perlundh.com')
+                m = Mailer(smtp, app.config['MAILFROM'])
                 m.send_forgot_password(newpass, email, user)
                 m.close()
 
@@ -220,10 +220,10 @@ def forgot_password():
 @app.before_request
 def before_request():
         g.db = MySQLdb.connect(
-                    host='***REMOVED***',
-                    user='rclone',
-                    passwd='dummy',
-                    db='rclone',
+                    host=app.config['DBHOST'],
+                    user=app.config['DBUSER'],
+                    passwd=app.config['DBPWD'],
+                    db=app.config['DBDB'],
                     cursorclass=MySQLdb.cursors.DictCursor
                 )
 
@@ -332,7 +332,7 @@ def edit_post(id):
         if tok != key:
             abort(400)
         content = request.form['content']
-        if len(content) < 16:
+        if len(content) < app.config['MINCONTENTLEN']:
             flash('You need to flesh out the content a bit more', category='error')
         else:
             cur.execute('update posts set content = %s where id = %s', (content, id))
@@ -398,13 +398,13 @@ def newpost(section):
         if not title.replace(' ', '0').isalnum():
             if valid: flash('Title can only contain alphanumeric characters and spaces', category='error')
             valid = False
-        if len(content) < 16 and len(link) < 3:
+        if len(content) < app.config['MINCONTENTLEN'] and len(link) < 3:
             if valid: flash('You need to flesh out the content more', category='error')
             valid = False
 
         if len(link) > 0:
             # Link post
-            if link.startswith(('http://', 'https://')):
+            if link.startswith(app.config['ALLOWLINKS']):
                 if valid:
                     cur.execute("insert into posts (section, type, title, content, user) values \
                             (%s, 1, %s, %s, %s)", (sectionid, title, link, current_user.id))
@@ -461,5 +461,4 @@ def favicon():
 			'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 if __name__ == "__main__":
-        app.debug=True
         app.run(host='0.0.0.0')
