@@ -51,7 +51,6 @@ def login():
         pwd = request.form['password']
         tok = str(request.form['csrftoken'])
         if tok != key:
-            flash(tok + ' is not ' + key)
             return render_template('login.html', title='login', key=key)
 
         valid = True
