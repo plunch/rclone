@@ -169,7 +169,7 @@ def section(section=None):
         cur.execute("select p.id as id, p.title as title, p.content as content, p.type as type, u.name as username, p.created as created from posts p \
                      inner join users u on u.id = p.user \
                      inner join sections s on s.id = p.section \
-                     where s.name = %s", (section,))
+                     where s.name = %s and p.visible = 1", (section,))
         posts = []
         for row in cur.fetchall():
             p = Post()
@@ -188,7 +188,7 @@ def post(id):
     cur = g.db.cursor()
     cur.execute("select p.id, p.title, p.content, p.type, u.name, p.created from posts p \
                  inner join users u on u.id = p.user \
-                 where p.id = %s limit 1", (id,))
+                 where p.id = %s and p.visible = 1 limit 1", (id,))
     if cur.rowcount == 0:
         abort(404)
     p = Post()
@@ -201,13 +201,64 @@ def post(id):
     p.created = row[5]
     return render_template('post.html', title=p.title, post=p)
 
+@app.route('/p/<int:id>/delete', methods=['POST'])
+@login_required
+def delete_post(id):
+    key = get_form_key()
+
+    cur = g.db.cursor(MySQLdb.cursors.DictCursor)
+    cur.execute('select * from posts where id = %s and visible = 1', (id,))
+
+    if cur.rowcount == 0:
+        abort(404)
+    post = AttrDict(cur.fetchall()[0])
+    if post.user != current_user.id:
+        abort(403)
+
+    tok = request.form['csrftoken']
+    if tok != key:
+        abort(400)
+
+    cur.execute('update posts set visible = 0 where id = %s', (id,))
+    g.db.commit()
+    flash('Post deleted successfully')
+
+    return redirect(url_for('.index'))
+
+@app.route('/p/<int:id>/edit', methods=['GET','POST'])
+@login_required
+def edit_post(id):
+    key = get_form_key()
+
+    cur = g.db.cursor(MySQLdb.cursors.DictCursor)
+    cur.execute('select * from posts where id = %s', (id,))
+
+    if cur.rowcount == 0:
+        abort(404)
+    post = AttrDict(cur.fetchall()[0])
+    if post.user != current_user.id:
+        abort(403)
+    if post.type != 0:
+        flash('You cannot edit this type of post')
+        abort(403)
+
+    if request.method == 'POST':
+        user = request.form['username']
+        pwd = request.form['password']
+        email = request.form['email']
+        tok = request.form['csrftoken']
+        if tok != key:
+            abort(400)
+
+    return render_template('edit_post.html', title='Edit post ' + post.title, post=post, key=key)
+
 @app.route('/u/<string:username>')
 def user(username):
     cur = g.db.cursor(MySQLdb.cursors.DictCursor)
     cur.execute("select p.id as id, p.title as title, p.content as content, p.type as type, u.name as username, p.created as created from posts p \
                  inner join users u on u.id = p.user \
                  inner join sections s on s.id = p.section \
-                 where u.name = %s", (username,))
+                 where p.visible = 1 and u.name = %s", (username,))
     posts = []
     for row in (AttrDict(d) for d in cur.fetchall()):
         p = Post()

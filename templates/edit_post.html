@@ -1,0 +1,13 @@
+{%extends 'base.html'%}
+{%block main_content %}
+<form action="" method="post" name="edit">
+	<input type="hidden" name="csrftoken" value="{{key}}"/>
+	<p>Content:<input type="text" name="content" value="{{post.content}}" /></p>
+	<p><input type="submit" value="Edit post"/></p>
+</form>
+<hr/>
+<form action="{{url_for('delete_post', id=post.id)}}" method="post" name="delete">
+	<input type="hidden" name="csrftoken" value="{{key}}"/>
+	<p><input type="submit" value="Delete post?"/></p>
+</form>
+{%endblock%}
