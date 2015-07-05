@@ -2,10 +2,12 @@ import MySQLdb
 import datetime
 import os
 import base64
+import smtplib
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, send_from_directory
 from flask.ext.login import LoginManager, login_user, logout_user, login_required, current_user
 from models.user import User
 from models.post import Post
+from forgot_password_email import Mailer
 
 app = Flask(__name__)
 app.secret_key='supersecret'
@@ -165,6 +167,9 @@ def forgot_password():
                 newpass = str(base64.standard_b64encode(os.urandom(16)))           
                 cur.execute('update users set password = %s where id = %s', (newpass, user.id))
                 g.db.commit()
+                m = Mailer(smtplib.SMTP('***REMOVED***'), 'rclone@perlundh.com')
+                m.send_forgot_password(newpass, email, user)
+                m.close()
 
             # ALWAYS show this message, otherwise some nefarious unknown kan
             # figure out what email addresses we have..
