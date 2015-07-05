@@ -243,9 +243,6 @@ def edit_post(id):
         abort(403)
 
     if request.method == 'POST':
-        user = request.form['username']
-        pwd = request.form['password']
-        email = request.form['email']
         tok = request.form['csrftoken']
         if tok != key:
             abort(400)
