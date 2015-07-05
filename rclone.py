@@ -16,6 +16,7 @@ app.secret_key='supersecret'
 lm = LoginManager()
 lm.session_protection = 'strong'
 lm.init_app(app)
+lm.login_message='User not logged in. This incident will be reported'
 
 lm.login_view = 'login'
 
@@ -87,13 +88,13 @@ def login():
         valid = True
 
         if not user.isalnum():
-            flash('Username or password is not valid')
+            flash('Username or password is not valid', category='error')
             valid=False
         if len(pwd) < 6:
-            flash('Username or password is not valid')
+            if valid: flash('Username or password is not valid', category='error')
             valid=False
         if current_user != None and current_user.is_authenticated():
-            flash('Already logged in')
+            if valid: flash('Already logged in', category='error')
             valid=False
 
         if valid:
@@ -101,7 +102,7 @@ def login():
             cur.execute("select id, name, created from users \
                          where name = %s and password = %s", (user, pwd))
             if cur.rowcount == 0:
-                flash('Unknown user or wrong password')
+                flash('Unknown user or wrong password', category='error')
                 return render_template('login.html', title='login', key=key)
 
             u = User()
@@ -110,6 +111,7 @@ def login():
             u.name = str(r.name)
             u.created=r.created
 
+            flash('Successfully logged in. Welcome, ' + u.name, category='success')
             login_user(u)
 
             next = request.args.get('next')
@@ -133,13 +135,13 @@ def create_user():
         valid = True
 
         if not user.isalnum():
-            flash('Username needs to be alphanumeric')
+            flash('Username needs to be alphanumeric', category='error')
             valid = False
         if len(pwd) < 6:
-            flash('Password needs at least 6 characters')
+            flash('Password needs at least 6 characters', category='error')
             valid = False
         if not email_valid(email):
-            flash('Email address is not valid')
+            flash('Email address is not valid', category='error')
             valid = False
         if current_user != None and current_user.is_authenticated():
             flash('You cannot create a new user while logged in')
@@ -169,7 +171,7 @@ def create_user():
                 flash('Welcome')
                 return redirect(url_for('.index'))
             else:
-                flash('Username taken')
+                flash('Username taken', category='error')
 
     return render_template('new_login.html', title='create user', key=key)
 
@@ -182,7 +184,7 @@ def forgot_password():
         if tok != key:
             abort(400)
         if not email_valid(email):
-            flash('Email address is not valid')
+            flash('Email address is not valid', category='error')
         else:
 
             cur = g.db.cursor()
@@ -209,7 +211,7 @@ def forgot_password():
 
             # ALWAYS show this message, otherwise some nefarious unknown kan
             # figure out what email addresses we have..
-            flash('An email with information on how to reset your password has been sent')
+            flash('An email with information on how to reset your password has been sent', category='success')
             return redirect(url_for('.login'))
 
     return render_template('forgot_password.html', title='Forgot password', key=key)
@@ -259,7 +261,12 @@ def section(section=None):
             p.created = row.created
             posts.append(p)
 
-        return render_template('sectionlist.html', title=section, posts=posts)
+        cur.execute('select * from sections where name = %s', (section,))
+        if cur.rowcount == 0:
+            abort(404)
+        sect = cur.fetchone()
+
+        return render_template('sectionlist.html', title='Viewing section {0}'.format(section, sect.description), posts=posts, sect=sect)
 
 @app.route('/p/<int:id>')
 def post(id):
@@ -300,7 +307,7 @@ def delete_post(id):
 
     cur.execute('update posts set visible = 0 where id = %s', (id,))
     g.db.commit()
-    flash('Post deleted successfully')
+    flash('Post deleted successfully', category='success')
 
     return redirect(url_for('.index'))
 
@@ -318,13 +325,20 @@ def edit_post(id):
     if post.user != current_user.id:
         abort(403)
     if post.type != 0:
-        flash('You cannot edit this type of post')
-        abort(403)
+        flash('You cannot edit this type of post', category='error')
 
     if request.method == 'POST':
         tok = request.form['csrftoken']
         if tok != key:
             abort(400)
+        content = request.form['content']
+        if len(content) < 16:
+            flash('You need to flesh out the content a bit more', category='error')
+        else:
+            cur.execute('update posts set content = %s where id = %s', (content, id))
+            g.db.commit()
+            flash('Post edited', category='success')
+            return redirect(url_for('.post', id=id))
 
     return render_template('edit_post.html', title='Edit post ' + post.title, post=post, key=key)
 
@@ -369,6 +383,7 @@ def newpost(section):
     sectionid = row.id
     sectionname = row.name
     sectiondescription = row.description
+    key = get_form_key()
 
     if request.method == 'POST':
         title = request.form['title']
@@ -378,31 +393,38 @@ def newpost(section):
         if tok != key:
             abort(400)
 
+        valid = True
+
         if not title.replace(' ', '0').isalnum():
-            abort(400)
+            if valid: flash('Title can only contain alphanumeric characters and spaces', category='error')
+            valid = False
         if len(content) < 16 and len(link) < 3:
-            abort(400)
+            if valid: flash('You need to flesh out the content more', category='error')
+            valid = False
 
         if len(link) > 0:
             # Link post
             if link.startswith(('http://', 'https://')):
+                if valid:
+                    cur.execute("insert into posts (section, type, title, content, user) values \
+                            (%s, 1, %s, %s, %s)", (sectionid, title, link, current_user.id))
+                    cur.execute("select LAST_INSERT_ID() as l")
+                    postid = cur.fetchone().l
+                    g.db.commit()
+                    return redirect(url_for('.post', id=postid))
+            else:
+                if valid: flash('That does not look like a proper link. Please add either http:// or https:// to the link', category='error')
+                valid = False
+        else:
+            if valid:
                 cur.execute("insert into posts (section, type, title, content, user) values \
-                         (%s, 1, %s, %s, %s)", (sectionid, title, link, current_user.id))
+                            (%s, 0, %s, %s, %s)", (sectionid, title, content, current_user.id))
                 cur.execute("select LAST_INSERT_ID() as l")
                 postid = cur.fetchone().l
                 g.db.commit()
                 return redirect(url_for('.post', id=postid))
-            else:
-                abort(400)
-        else:
-            cur.execute("insert into posts (section, type, title, content, user) values \
-                        (%s, 0, %s, %s, %s)", (sectionid, title, content, current_user.id))
-            cur.execute("select LAST_INSERT_ID() as l")
-            postid = cur.fetchone().l
-            g.db.commit()
-            return redirect(url_for('.post', id=postid))
 
-    return render_template('new_post.html', title="Create a new post in /s/" + section)
+    return render_template('new_post.html', title="Create a new post in /s/" + section, key=key)
 
 @app.route('/new_section', methods=['GET', 'POST'])
 @login_required
@@ -417,17 +439,18 @@ def newsection():
 
         valid = True
         if not s.replace('_', '1').replace('-', '1').isalnum():
-            flash('Invalid name')
+            flash("Invalid name section name. Only alphanumeric characters , '_' and, '-' are accepted", category='error')
             valid = False
 
         if valid:
             cur = g.db.cursor()
             cur.execute("select * from sections where name = %s ", (s,))
             if cur.rowcount > 0:
-                flash('Section already exists')
+                flash('Section already exists', category='error')
             else:
                 cur.execute('insert into sections (name, description) values (%s, %s)', (s, d))
                 g.db.commit()
+                flash('Section created successfully. Welcome to your new kingdom', category='success')
                 return redirect(url_for('.section', section=s))
 
     return render_template('new_section.html', title='Create a new section', key=key);

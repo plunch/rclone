@@ -2,6 +2,35 @@
 	font-size: 0.8em;
 }
 
+.login {
+	padding: 0.2em;
+	border-radius: 10px;
+	border: solid 1px #eeeeee;
+}
+
+.alert {
+	padding: 0.7em;
+	border-radius: 10px;
+	border: solid 1px #008ba3;
+	margin: 0.4em;
+}
+
+.alert.error {
+	background-color: #ff765e;
+	border-color: #e63b1c;
+	color: black;
+}
+.alert.message {
+	border-color: #008ba3;
+	background-color: #46e4ff;
+	color: black;
+}
+.alert.success {
+	border-color: #008ba3;
+	background-color: #1db21f;
+	color: black;
+}
+
 body {
 	font-family: arial, helvetica, sans-serif;
 	color: #666666;
@@ -13,7 +42,7 @@ body {
 
 @media screen and (min-width: 500px) {
 	body {
-		background-image: url("/images/footer_lodyas.png");
+		background-image: url("/static/footer_lodyas.png");
 	}
 }
 

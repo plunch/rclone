@@ -17,17 +17,17 @@
 #}
 
 <div class="container">
-	<h1>{{title}}</h1>
-	<p>
+	{% block pagetitle %}<h1>{{title}}</h1>{% endblock%}
+	<div class="login">
 	{% if current_user.is_authenticated() %}
 	Hello {{ current_user.name }}. <a href="{{url_for('logout', next=request.path)}}">Log out</a>
 	{% else %}
 	<a href="{{url_for('.login', next=request.path)}}">Log in</a>
 	{% endif %}
-	</p>
+	</div>
 	{% block alerts %}
-	{% for message in get_flashed_messages() %}
-	<div class="alert alert-info" role="alert">{{ message }}</div>
+	{% for cat, message in get_flashed_messages(with_categories=True) %}
+	<div class="alert {{cat}}">{{ message }}</div>
 	{% endfor %}
 	{% endblock %}
 	{% block main_content %}{% endblock %}
