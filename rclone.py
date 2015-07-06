@@ -26,9 +26,18 @@ def email_valid(email):
 
 def redirect_valid(uri):
     u = urlparse(uri)
-    if u.netloc is None:
-        return True
-    return False
+
+    # Only redirect to the current host
+    if u.netloc != '':
+        return False
+
+    if not u.scheme in ['http', 'https', 'mailto', '']:
+        return False
+
+    # Whoa...
+    if '..' in u.path:
+        return False
+    return True
 
 # Do some function decoration, as it's nicer to always have an AttrDict for
 # accessing the results of the DictCursor.
