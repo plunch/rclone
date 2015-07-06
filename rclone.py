@@ -1,5 +1,6 @@
 import MySQLdb
 from MySQLdb.cursors import DictCursor
+import re
 import datetime
 import os
 import base64
@@ -21,6 +22,15 @@ lm.login_message='User not logged in. This incident will be reported'
 
 lm.login_view = 'login'
 
+def username_valid(u):
+    return re.search('^[0-9a-zA-Z_-]{3,20}$') is not None
+
+def password_valid(p):
+    if len(pwd) < 6:
+        return False
+    else:
+        return True
+
 def email_valid(email):
     return '@' in email
 
@@ -38,6 +48,9 @@ def redirect_valid(uri):
     if '..' in u.path:
         return False
     return True
+
+def generate_password():
+    return (SystemRandom().choice('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!?.,_-="\':;/\\[]{}()<>|') for x in range(0,10))
 
 # Do some function decoration, as it's nicer to always have an AttrDict for
 # accessing the results of the DictCursor.
@@ -106,10 +119,10 @@ def login():
 
         valid = True
 
-        if not user.isalnum():
+        if not username_valid(user):
             flash('Username or password is not valid', category='error')
             valid=False
-        if len(pwd) < 6:
+        if not password_valid(pwd):
             if valid: flash('Username or password is not valid', category='error')
             valid=False
         if current_user != None and current_user.is_authenticated():
@@ -151,11 +164,11 @@ def create_user():
 
         valid = True
 
-        if not user.isalnum():
-            flash('Username needs to be alphanumeric', category='error')
+        if not username_valid(user):
+            flash("Invalid username. Allowed characters are 'A-Z', '0-9', '_' and '-'. Username needs to be between 3 and 20 characters.", category='error')
             valid = False
-        if len(pwd) < 6:
-            flash('Password needs at least 6 characters', category='error')
+        if not password_valid(pwd):
+            flash('Password needs to be at least 6 characters', category='error')
             valid = False
         if not email_valid(email):
             flash('Email address is not valid', category='error')
@@ -212,7 +225,7 @@ def forgot_password():
                         and ult.name = "email" and ul.value = %s limit 1', (email,))
             if cur.rowcount > 0:
                 user = cur.fetchone()
-                newpass = str(base64.standard_b64encode(os.urandom(16)))           
+                newpass = generate_password()
                 cur.execute('update users set password = %s where id = %s', (newpass, user.id))
                 g.db.commit()
                 smtp = smtplib.SMTP(app.config['SMTPHOST'], 587)

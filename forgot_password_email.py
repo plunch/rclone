@@ -22,13 +22,14 @@ class Mailer():
         msg['To'] = email
 
         # Create the body of the message (a plain-text and an HTML version).
-        text = "Hello {0}!\nYour new passrod is {1}".format(user.name, password)
+        text = "Hello {0}!\nYour new password is '{1}'".format(user.name, password)
         html = """\
         <html>
         <head></head>
         <body>
             <p>Hello {0}!<br>
-            Your new password is {1}
+            Your new password is '{1}'<br/>
+            Note: Without leading and trailing quotes.
             </p>
         </body>
         </html>
