@@ -131,7 +131,7 @@ def login():
             u.created=r.created
 
             flash('Successfully logged in. Welcome, ' + u.name, category='success')
-            login_user(u)
+            login_user(u, remember=request.form.get('remember', '') == 'on')
 
             next = request.args.get('next')
             if not redirect_valid(next): next = None
