@@ -1,5 +1,45 @@
 .postdetails {
-	font-size: 0.8em;
+	font-size: 0.85em;
+}
+
+.actionline {
+	font-size: 0.85em;
+}
+
+.postcontent {
+	padding: .7em;
+	border-radius: 10px;
+	border: solid 1px #e0e0e0;
+	margin-top: 1em;
+}
+
+.tagline {
+	font-size: 0.85em;
+}
+
+.comments{
+	margin-left: 1em;
+	margin-right: 1em;
+	margin-top: 3em;
+}
+
+.comment {
+	padding: 0.4em;
+	padding-left: 1em;
+	border-radius: 10px;
+	border: solid 1px #e0e0e0;
+}
+
+.comment p {
+	padding-left: 0.5em;
+}
+
+.comment.even {
+	background-color: #f2f2f2;
+}
+
+.comment.odd {
+	background-color: #ffffff;
 }
 
 .login {

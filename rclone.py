@@ -4,6 +4,7 @@ import datetime
 import os
 import base64
 import smtplib
+from urllib.parse import urlparse
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, send_from_directory, config
 from flask.ext.login import LoginManager, login_user, logout_user, login_required, current_user
 from models.user import User
@@ -20,6 +21,14 @@ lm.login_message='User not logged in. This incident will be reported'
 
 lm.login_view = 'login'
 
+def email_valid(email):
+    return '@' in email
+
+def redirect_valid(uri):
+    u = urlparse(uri)
+    if u.netloc is None:
+        return True
+    return False
 
 # Do some function decoration, as it's nicer to always have an AttrDict for
 # accessing the results of the DictCursor.
@@ -68,6 +77,7 @@ def load_user(userid):
 def logout():
     logout_user()
     next = request.args.get('next')
+    if not redirect_valid(next): next = None
     return redirect(next or url_for('index'))
 
 def get_form_key():
@@ -115,11 +125,9 @@ def login():
             login_user(u)
 
             next = request.args.get('next')
+            if not redirect_valid(next): next = None
             return redirect(next or url_for('index'))
     return render_template('login.html', title='login', key=key)
-
-def email_valid(email):
-    return '@' in email
 
 @app.route('/login/new', methods=['GET', 'POST'])
 def create_user():
@@ -285,7 +293,12 @@ def post(id):
     p.type = row.type
     p.user = row.name
     p.created = row.created
-    return render_template('post.html', title=p.title, post=p)
+
+    cur.execute('select c.id as id, c.content as content, c.created as created, c.parent as parent, \
+                        u.name as username, c.depth as depth, (select count(*) from comments c2 where c2.lineage like concat(c.lineage, "%%") and c2.lineage<>c.lineage) as num_children \
+                 from comments c inner join users u on u.id = c.user where c.post = %s order by c.lineage', (id,))
+    p.comments = cur.fetchall()
+    return render_template('post.html', title=p.title, post=p, key=get_form_key())
 
 @app.route('/p/<int:id>/delete', methods=['POST'])
 @login_required
@@ -341,6 +354,49 @@ def edit_post(id):
             return redirect(url_for('.post', id=id))
 
     return render_template('edit_post.html', title='Edit post ' + post.title, post=post, key=key)
+
+@app.route('/c/<int:comment>/edit', methods = ['POST'])
+@login_required
+def edit_comment(comment):
+    key = get_form_key()
+    tok = request.form['csrftoken']
+    content = request.form['content']
+    if key != tok:
+        abort(400)
+    pass
+
+@app.route('/p/<int:postid>/comment', methods = ['POST'])
+@login_required
+def post_comment(postid, parent=0):
+    key = get_form_key()
+    tok = request.form['csrftoken']
+    content = request.form['content']
+
+    if key != tok:
+        abort(400)
+
+    if len(content) < app.config['MINCONTENTLEN']:
+        flash('You need to flesh out your comment more')
+        return redirect(url_for('.post', id=postid))
+
+    commentid=0
+    if parent > 0:
+        cur = g.db.cursor()
+        cur.execute('insert into comments (post, user, content, depth, lineage) values (%s, %s, %s, 0, (select lineage from comments wher id = %s limit 1))',
+                     (postid, current_user.id, content, parent))
+        cur.execute('select LAST_INSERT_ID() as l')
+        commentid = cur.fetchone().l
+        cur.execute('update comments set lineage = concat(lineage, "-", %s) where id = %s', (commentid, commentid))
+        g.db.commit()
+    else:
+        cur = g.db.cursor()
+        cur.execute('insert into comments (post, user, content, depth) values (%s, %s, %s, 0)',
+                     (postid, current_user.id, content))
+        cur.execute('select LAST_INSERT_ID() as l')
+        commentid = cur.fetchone().l
+        cur.execute('update comments set lineage = %s where id = %s', (commentid, commentid))
+        g.db.commit()
+    return redirect(url_for('.post', id=postid, _anchor='c' + str(commentid)))
 
 @app.route('/u/<string:username>')
 def user(username):
@@ -478,13 +534,19 @@ def error400(e):
 def error403(e):
     return render_template('400.html', title='Not allowed', what='You are trying to perform an action that just isnt allowed'), 403
 
+@app.errorhandler(501)
+def error501(e):
+    return render_template('500.html', title='We are planning on having that feature, just not yet.'), 501
+
 @app.errorhandler(500)
 def server_error(e):
     return render_template('500.html', title='Something has gone wrong'), 500
 
+"""
 @app.errorhandler(Exception)
 def defaultHandler(e):
     return render_template('500.html', title='Some programmer has made an assumption that just wasn\'t valid.'), 500
+"""
 
 if __name__ == "__main__":
         app.run(host='0.0.0.0')

@@ -3,6 +3,47 @@
 {% if post.type == 0 %}
 <div class="postcontent">{{post.content}}</div>
 {% endif %}
-<span class="postdetails">Posted by <a href="/u/{{post.user}}">{{post.user}}</a> at {{post.created}}</span></p>
+<span class="postdetails">Posted by <a href="/u/{{post.user}}">{{post.user}}</a> at {{post.created}} {% if current_user.is_authenticated() and current_user,username == post.user %}<a href="{{url_for('.edit_post', id=post.id)}}">Edit</a>{% endif %}</span>
+		{% if current_user.is_authenticated() %}
+		<div class='editbox'>
+			<form action='{{url_for('.post_comment', postid=post.id)}}' method='post' name='comment'>
+				<input type="hidden" name="csrftoken" value='{{key}}'/>
+				<input type='text' name='content'/>
+				<input type='submit' value='Share!'/>
+			</form>
+		</div>
+		{% endif %}
+<div class="comments">
+	{% for comment in post.comments %}
+		{% if not loop.first %}
+			{% set foo = last_depth - comment.depth %}
+			{% if foo >= 0 %}
+				{{('</div>' * (foo + 1))|safe}}
+			{% endif %}
+		{% endif %}
+		{% set last_depth = comment.depth %}
+
+		<div id='c{{comment.id}}' class="comment {{loop.cycle('odd', 'even')}}">
+			<span class='tagline'><a href="{{url_for('.user', username=comment.username)}}">{{comment.username}}</a> at {{comment.created}} ({{comment.num_children}} child comments)</span>
+			<p>
+			{{comment.content}}
+			</p>
+			<span class='actionline'>
+				{% if current_user.is_authenticated() %}
+					{% if current_user.name == comment.username %}
+						<a href="{{url_for('.edit_comment', comment=comment.id)}}">edit</a>
+					{% endif %}
+					<a href="mailto:iwantafeature@perlundh.com">report</a>
+					<a href="mailto:iwantafeature@perlundh.com">message</a>
+					<a href="mailto:iwantafeature@perlundh.com">favourite</a>
+					<a href="mailto:iwantafeature@perlundh.com">reply</a>
+				{% endif %}
+			</span>
+			{% if loop.last %}
+				{{('</div>' * (loop.depth + 1))|safe}}
+			{% endif %}
+	{% else %}
+	<p>No comments yet.</p>
+	{% endfor %}
 </div>
 {%endblock%}

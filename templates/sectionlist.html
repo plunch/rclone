@@ -5,7 +5,7 @@
 	{% if posts.__len__() > 0 %}
 		{% for post in posts %}
 		<p class="post"><a href="{{post.link()}}">{{post.title}}</a><br/>
-			<span class="postdetails">Posted by <a href="/u/{{post.user}}">{{post.user}}</a> at {{post.created}}. 
+		<span class="postdetails">Posted by <a href="/u/{{post.user}}">{{post.user}}</a> at {{post.created}}. <a href="{{url_for('.post', id=post.id)}}">Comments</a> 
 		{% if current_user.is_authenticated() and post.user == current_user.name %}
 			<a href="{{url_for('.edit_post', id=post.id)}}">Edit</a>
 		{% endif %}
