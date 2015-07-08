@@ -23,10 +23,11 @@ lm.login_message='User not logged in. This incident will be reported'
 lm.login_view = 'login'
 
 def username_valid(u):
-    return re.search('^[0-9a-zA-Z_-]{3,20}$') is not None
+    res = re.search('^[0-9a-zA-Z_-]{3,20}$', u)
+    return res != None
 
 def password_valid(p):
-    if len(pwd) < 6:
+    if len(p) < 6:
         return False
     else:
         return True
@@ -276,7 +277,10 @@ def section(section=None):
             sections = cur.fetchall()
             return render_template('allsections.html', title='All sections', sections=sections)
         cur = g.db.cursor()
-        cur.execute("select p.id as id, p.title as title, p.content as content, p.type as type, u.name as username, p.created as created from posts p \
+        cur.execute("select p.id as id, p.title as title, p.content as content, p.type as type, \
+                            u.name as username, p.created as created, \
+                            (select count(*) from comments c where c.post = p.id) as nofc \
+                     from posts p \
                      inner join users u on u.id = p.user \
                      inner join sections s on s.id = p.section \
                      where s.name = %s and p.visible = 1", (section,))
@@ -289,6 +293,7 @@ def section(section=None):
             p.type = row.type
             p.user = row.username
             p.created = row.created
+            p.nofc = row.nofc
             posts.append(p)
 
         cur.execute('select * from sections where name = %s', (section,))
@@ -302,8 +307,11 @@ def section(section=None):
 def post(id):
     cur = g.db.cursor()
     cur.execute("select p.id as id, p.title as title, p.content as content, \
-                        p.type as type, u.name as name, p.created as created from posts p \
+                        p.type as type, u.name as name, p.created as created, \
+                        s.name as section \
+                 from posts p \
                  inner join users u on u.id = p.user \
+                 inner join sections s on s.id = p.section \
                  where p.id = %s and p.visible = 1 limit 1", (id,))
     if cur.rowcount == 0:
         abort(404)
@@ -320,7 +328,7 @@ def post(id):
                         u.name as username, c.depth as depth, (select count(*) from comments c2 where c2.lineage like concat(c.lineage, "%%") and c2.lineage<>c.lineage) as num_children \
                  from comments c inner join users u on u.id = c.user where c.post = %s order by c.lineage', (id,))
     p.comments = cur.fetchall()
-    return render_template('post.html', title=p.title, post=p, key=get_form_key())
+    return render_template('post.html', title='/s/' + row.section, post=p, key=get_form_key())
 
 @app.route('/p/<int:id>/delete', methods=['POST'])
 @login_required

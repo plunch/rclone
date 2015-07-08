@@ -17,20 +17,36 @@
 #}
 
 <div class="container">
+	<div class="header">
+		<div class="header-content">
 	{% block pagetitle %}<h1>{{title}}</h1>{% endblock%}
-	<div class="login">
-	{% if current_user.is_authenticated() %}
-	Hello {{ current_user.name }}. <a href="{{url_for('logout', next=request.path)}}">Log out</a>
-	{% else %}
-	<a href="{{url_for('.login', next=request.path)}}">Log in</a>
-	{% endif %}
+		</div>
+		<div class="header-control">
+			<a class="header-action" href="{{url_for('.index')}}">
+				Frontpage
+			</a>
+			<a class="header-action" href="{{url_for('.index')}}">
+				Section list
+			</a>
+			{% if current_user.is_authenticated() %}
+			<a class="header-action login" href="{{url_for('.logout', next=request.path)}}">
+				Log out {{current_user.name}}
+			</a>
+			{% else %}
+			<a class="header-action login" href="{{url_for('.login', next=request.path)}}">
+				Log in
+			</a>
+			{% endif %}
+		</div>
 	</div>
 	{% block alerts %}
 	{% for cat, message in get_flashed_messages(with_categories=True) %}
 	<div class="alert {{cat}}">{{ message }}</div>
 	{% endfor %}
 	{% endblock %}
+	<div class="content">
 	{% block main_content %}{% endblock %}
+	</div>
 </div>
 	</body>
 </html>

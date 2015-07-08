@@ -1,33 +1,79 @@
-.postdetails {
-	font-size: 0.85em;
+.postdetails, .tagline, .actionline {
+	font-size: 0.75em;
+	color: #999999;
 }
 
-.actionline {
-	font-size: 0.85em;
+.actionline a {
+	margin-right: 0.5em;
 }
 
+.posttitle {
+	text-decoration: none;
+	font-weight: normal;
+}
 .postcontent {
-	padding: .7em;
-	border-radius: 10px;
-	border: solid 1px #e0e0e0;
-	margin-top: 1em;
 }
 
-.tagline {
-	font-size: 0.85em;
+.post-full {
+	// border: 1px solid #dddddd;
+	box-shadow: inset 0px 0px 4px #aaa;
+	padding: 1em;
 }
 
-.comments{
+.postdetails {
+	margin-top: 0.5em;
+}
+
+
+.post {
+	padding: 1em 0.5em 1em 1em;
+	margin-bottom: 0em;
+	margin-top: 0em;
+}
+
+.post.odd {
+	/*background: #f4f4f4;*/
+}
+.post.even {
+	background: #f4f4f4;
+}
+
+
+
+/* Comments */
+
+.comments {
+	margin-left: -1em;
+}
+
+.comments > p {
 	margin-left: 1em;
-	margin-right: 1em;
-	margin-top: 3em;
 }
 
 .comment {
 	padding: 0.4em;
+	padding-top: 1em;
 	padding-left: 1em;
+	/*
 	border-radius: 10px;
 	border: solid 1px #e0e0e0;
+	*/
+}
+
+.childcomments {
+		border-left: 3px #cccccc solid;
+}
+
+.comment:hover > .childcomments {
+	border-color: #888888;
+}
+
+.commentcontent {
+	padding: .2em;
+}
+
+.comment:hover > .commentcontent {
+	background-color: #efefef;
 }
 
 .comment p {
@@ -35,26 +81,24 @@
 }
 
 .comment.even {
-	background-color: #f2f2f2;
+	//background-color: #f2f2f2;
 }
 
 .comment.odd {
-	background-color: #ffffff;
+	//background-color: #ffffff;
 }
 
-.login {
-	padding: 0.2em;
-	border-radius: 10px;
-	border: solid 1px #eeeeee;
-}
 
+
+/* Alerts */
 .alert {
-	padding: 0.7em;
-	border-radius: 10px;
-	border: solid 1px #008ba3;
-	margin: 0.4em;
+	padding: 1em;
+	//border: solid 1px #008ba3;
+	margin: 0.7em;
+	margin-top: 0em;
+	box-shadow: -1px 3px 4px 0px #888;
 }
-
+/*
 .alert.error {
 	background-color: #ff765e;
 	border-color: #e63b1c;
@@ -66,10 +110,11 @@
 	color: black;
 }
 .alert.success {
-	border-color: #008ba3;
-	background-color: #1db21f;
-	color: black;
+	//border-color: #008ba3;
 }
+*/
+
+
 
 body {
 	font-family: arial, helvetica, sans-serif;
@@ -82,94 +127,89 @@ body {
 
 @media screen and (min-width: 500px) {
 	body {
-		background-image: url("/static/footer_lodyas.png");
+		background-image: url("/static/escheresque/escheresque.png");
 	}
 }
 
-@media screen and (min-width: 600px) {
-	.floatedImage {
-		float: right;
-		border-radius: 10px;
-		clear: both;
-		border: solid 1px #eeeeee;
-		margin: 0.5em;
-		padding: 0.5em;
-		background-color: #FFFFFF;
-	}
-}
-
-@media screen and (max-width: 600px) and (min-width: 300px) {
-	.floatedImage {
-		border-radius: 10px;
-		display: block;
-		margin-left: auto;
-		margin-right: auto;
-		width: 256px;
-		clear: both;
-		border: solid 1px #eeeeee;
-		margin-top: 0.5em;
-		margin-bottom: 0.5em;
-		padding: 0.5em;
-		background-color: #FFFFFF;
-	}
-}
-
-@media screen and (max-width: 300px) {
-	.floatedImage {
-		display: none;
-	}
-}
-
-.floatedImage img {
-	border-radius: 5px;
-	object-fit: none;
-	width: 256px;
-	height 256px;
-	object-position: 0px 0px;
-}
-
-hr {
-	color: #999999;
-}
-
-h5 {
-	margin: 0em;
-	margin-left: 0.5em;
-	font-size: 1em;
-}
-
-h4 {
-	margin: 0.5em;
-	font-size: 1.2em;
-}
-
-.worktitle {
-	font-size: 1.2em;
-}
-
-h2 {
-	font-size: 1.7em;
-	padding-top: 1.3em;
-}
 
 a {
 	transition-duration: 0.2s;
 	text-decoration: none;
-	color: #999999;
+	font-weight: bold;
+	color: #777777;
 }
 
 a:hover {
 	transition-duration: 0.2s;
-	color: #eeeeee;
+	text-decoration: underline;
+}
+
+.container {
+	background: white;
+	padding: 0em;
+}
+
+
+
+.header-content {
+ 	background: #999999;
+	color: #ffffff;
+	text-shadow: -1px 1px 3px #555;
+	background-image: url("/static/footer_lodyas.png");
+}
+
+.header-content a {
+	color: #ffffff;
+	text-decoration: none;
+}
+
+.header-content a:hover {
+	text-decoration: underline;
+}
+
+.header-control {
+	background: #ffffff;
+  box-shadow: 2px 0 15px -2px #888;
+}
+
+.header-action {
+	padding: 1em 1em 1em 1em;
+}
+
+@media screen and (max-width: 500px) {
+	.header-action {
+		display:block;
+		border-top: 1px solid #eeeeee;
+		border-bottom: 1px solid #eeeeee;
+	}
+	
+	.header-action + .header-action {
+		margin-top: .4em;
+	}
+}
+
+@media screen and (min-width: 500px) {
+	.login {
+		float:right;
+	}
+	
+	.header-action {
+		display: inline-block;
+		border-left: 1px solid #eeeeee;
+		border-right: 1px solid #eeeeee;
+	}
+}
+
+.header-action:hover {
+	background: linear-gradient(#ffffff, #eeeeee);
 }
 
 
 @media screen and (max-width: 500px) {
 	.container {
-		margin-bottom: 4em;
-		border: solid 1px #eeeeee;
-		background: white;
-		border-radius: 10px;
+	}
+	.header-content {
+		padding: 1em;
 	}
 }
 
@@ -178,12 +218,10 @@ a:hover {
 		position: relative;
 		width: 90%;
 		margin: auto;
-		margin-top: 4em;
+	}
+	.content, .header-content {
 		padding: 1em;
-		margin-bottom: 4em;
-		border-radius: 10px;
-		border: solid 1px #eeeeee;
-		background: white;
+		padding-top: .1em;
 	}
 }
 
@@ -192,75 +230,24 @@ a:hover {
 		position: relative;
 		width: 60%;
 		margin: auto;
-		margin-top: 4em;
-		padding: 1em;
-		margin-bottom: 4em;
-		border: solid 1px #eeeeee;
-		background: white;
-		border-radius: 10px;
+	}
+	
+	.content, .header-content {
+		padding: 1.5em;
 	}
 }
 
-.header {
-	padding: 1.5em;
-	padding-top: 0em;
-	padding-bottom: 0em;
+
+
+
+
+h1 {
+	font-size: 1.7em;
 }
 
-.work {
-	overflow: auto;
-}
-
-.footer {
-	padding: 1em;
-	padding-bottom: 0em;
-	color: #dddddd;
-	font-size: 0.75em;
-	margin-left: 0.5em;
-	margin-right: 0.5em;
-	border-radius: 10px;
-	border-top: solid 1px #eeeeee;
-	clear: both;
-}
-
-.footer a {
-	color: #dddddd;
-	text-decoration: underline;
-}
-
-.footer a:hover {
-	color: #999999;
-}
-
-.content {
-	padding-left: 1em;
-	padding-right: 1em;
-}
-
-.navigation {
-	padding-bottom: 1em;
-	padding-left: 5em;
-	padding-right: 5em;
-	border-bottom: solid 1px #eeeeee;
-	border-radius: 30px;
-	line-height: 200%;
-}
-
-.navigation .link {
-	white-space: nowrap;
-}
-
-.link {
-	word-spacing: normal;
-	margin-right: 1em;
-	display: inline;
-}
-
-.link a:hover {
-	background-color: #999999;
-	color: #FFFFFF;
-	border-radius: 5px;
-	padding: 0.5em;
+h2 {
+	font-size: 1.7em;
+	padding-top: 1.3em;
 }
 
 h3 {
@@ -269,9 +256,19 @@ h3 {
 	font-size: 1.5em;
 }
 
-h1 {
-	font-size: 1.7em;
+h4 {
+	margin: 0.5em;
+	font-size: 1.2em;
 }
+
+h5 {
+	margin: 0em;
+	margin-left: 0.5em;
+	font-size: 1em;
+}
+
+
+
 
 td {
 	padding-left: 1em;
@@ -280,3 +277,6 @@ td {
 	border-right: solid 1px #eeeeee;
 }
 	
+hr {
+	color: #999999;
+}
