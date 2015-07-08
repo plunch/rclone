@@ -31,7 +31,7 @@
 				Log out {{current_user.name}}
 			</a>
 			{% else %}
-			<span class="header-action login">
+			<span class="header-action login large">
 			<form action="{{url_for('.login', next= request.form.get('next') or request.args.get('next') or request.path)}}"
 			      method="post" name='login'>
 				<input type="hidden" name="csrftoken" value="{{get_form_key()}}"/>
@@ -40,11 +40,9 @@
 				<input type="submit" value="Sign in"/>
 			</form>
 			</span>
-			<!--
-			<a class="header-action login" href="{{url_for('.login', next=request.path)}}">
+			<a class="header-action login small" href="{{url_for('.login', next=request.path)}}">
 				Log in
 			</a>
-			-->
 			{% endif %}
 		</div>
 	</div>
