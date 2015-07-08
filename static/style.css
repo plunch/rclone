@@ -351,3 +351,46 @@ td {
 hr {
 	color: #999999;
 }
+
+
+
+
+
+
+
+
+/*   Markdown   */
+.md h1 {
+  font-size: 1.7em;
+  padding: 0em;
+  margin: 0em;
+}
+.md h2 {
+  font-size: 1.5em;
+  padding: 0em;
+  margin: 0em;
+}
+.md h3 {
+  font-size: 1.3em;
+  padding: 0em;
+  margin: 0em;
+}
+.md h4 {
+  padding: 0em;
+  margin: 0em;
+}
+.md h5 {
+  font-size: 1em;
+  padding: 0em;
+  margin: 0em;
+}
+.md h6 {
+  padding: 0em;
+  margin: 0em;
+}
+.md pre, .md p > code {
+  /*color: black;*/
+  background-color: #eeeeee;
+  padding: .5em;
+  border: 1px solid #aaaaaa;
+}

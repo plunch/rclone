@@ -7,7 +7,7 @@
 
 <h4>{{post.title}}</h4>
 <div class="post-full">
-	<div class="postcontent">{{post.content}}</div>
+	<div class="postcontent md">{{markup(post.content)|safe}}</div>
 {% else %}
 
 <h4><a href="{{post.content}}">{{post.title}}</a></h4>
@@ -45,8 +45,8 @@
 			<div class="commentcontent">
 			<div class='tagline'><a href="{{url_for('.user', username=comment.username)}}">{{comment.username}}</a>
 				at {{comment.created}} <!--({{comment.num_children}} child comments)--></div>
-			<p>
-			{{comment.content}}
+			<p class="md">
+			{{markup(comment.content)|safe}}
 			</p>
 			<div class='actionline'>
 				{#{% if current_user.is_authenticated() %} #}

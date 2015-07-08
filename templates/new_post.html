@@ -3,7 +3,7 @@
 <form action="" method="post" name="login">
 	<input type="hidden" name="csrftoken" value="{{get_session_key()}}"/>
 	<p>Title:<input type="text" name="title"/></p>
-	<p>Content:<input type="text" name="content" /></p>
+	<p><textarea name="content"></textarea>
 	<p>Link:<input type="uri", name="link" /></p>
 	<p><input type="submit" value="Submit post"/></p>
 </form>

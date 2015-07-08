@@ -2,8 +2,8 @@
 {%block main_content %}
 <form action="" method="post" name="edit">
 	<input type="hidden" name="csrftoken" value="{{get_form_key()}}"/>
-	<p>Content:<input type="text" name="content" value="{{post.content}}" /></p>
-	<p><input type="submit" value="Edit post"/></p>
+	<textarea name="content">{{post.content}}</textarea><br/>
+	<input type="submit" value="Edit post"/>
 </form>
 <hr/>
 <form action="{{url_for('delete_post', id=post.id)}}" method="post" name="delete">

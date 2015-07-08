@@ -5,6 +5,7 @@ import datetime
 import os
 import base64
 import smtplib
+import markdown
 from urllib.parse import urlparse
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, send_from_directory, config
 from flask.ext.login import LoginManager, login_user, logout_user, login_required, current_user
@@ -21,6 +22,10 @@ lm.init_app(app)
 lm.login_message='User not logged in. This incident will be reported'
 
 lm.login_view = 'login'
+
+@app.template_global()
+def markup(text):
+    return markdown.markdown(text, app.config['MARKDOWN_EXTENSIONS'], safe_mode="escape")
 
 def username_valid(u):
     res = re.search('^[0-9a-zA-Z_-]{3,20}$', u)
