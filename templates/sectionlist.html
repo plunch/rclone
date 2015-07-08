@@ -1,9 +1,12 @@
 {%extends 'base.html'%}
 {% block pagetitle %}<h1>{{'/s/' + sect.name}}</h1><h4>{{sect.description}}</h4>{% endblock %}
+{% block header_controls %}
+{{ super() }}
+<a class="header-action" href="{{url_for('.newpost', section=sect.name)}}">Submit</a>
+{% endblock %}
 {%block main_content %}
 <div class="postlist">
-	{% if posts.__len__() > 0 %}
-		{% for post in posts %}
+	{% for post in posts %}
 		<div class="post {{loop.cycle('odd', 'even')}}">
 			<a class="posttitle" href="{{post.link()}}">{{post.title}}</a>
 			<div class="postdetails">
@@ -16,9 +19,8 @@
 				{% endif %}
 			</div>
 		</div>
-		{% endfor %}
 	{% else %}
-		<p>Nothing here. Why don't you <a href={{url_for('newpost', section=sect.name)}}>Create something!</a></p>
-	{% endif %}
+		<p>Nothing here. Why don't you <a href={{url_for('.newpost', section=sect.name)}}>Create something!</a></p>
+	{% endfor %}
 </div>
 {%endblock%}

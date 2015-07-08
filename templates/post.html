@@ -24,8 +24,9 @@
 		{% if current_user.is_authenticated() %}
 		<div class='editbox'>
 			<form action='{{url_for('.post_comment', postid=post.id)}}' method='post' name='comment'>
-				<input type="hidden" name="csrftoken" value='{{key}}'/>
-				<input type='text' name='content'/>
+				<input type="hidden" name="csrftoken" value='{{get_session_key()}}'/>
+				<textarea cols=1 rows=10 name='content' placeholder="What is your contribution today?"></textarea>
+				<br/>
 				<input type='submit' value='Share!'/>
 			</form>
 		</div>

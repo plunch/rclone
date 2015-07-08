@@ -103,10 +103,15 @@ def logout():
     if not redirect_valid(next): next = None
     return redirect(next or url_for('index'))
 
+@app.template_global()
 def get_form_key():
     if 'csrfkey' not in session:
         session['csrfkey'] = str(base64.standard_b64encode(os.urandom(64)))
     return session['csrfkey']
+
+@app.template_global()
+def get_session_key():
+    return get_form_key()
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -115,8 +120,9 @@ def login():
         user = request.form['username']
         pwd = request.form['password']
         tok = str(request.form['csrftoken'])
+        next = request.form.get('next')
         if tok != key:
-            return render_template('login.html', title='login', key=key)
+            return render_template('login.html', title='login', sendto=request.args.get('next'))
 
         valid = True
 
@@ -136,7 +142,7 @@ def login():
                          where name = %s and password = %s", (user, pwd))
             if cur.rowcount == 0:
                 flash('Unknown user or wrong password', category='error')
-                return render_template('login.html', title='login', key=key)
+                return render_template('login.html', title='login', sendto=request.args.get('next'))
 
             u = User()
             r = cur.fetchone()
@@ -147,10 +153,11 @@ def login():
             flash('Successfully logged in. Welcome, ' + u.name, category='success')
             login_user(u, remember=request.form.get('remember', '') == 'on')
 
-            next = request.args.get('next')
+            if not next or next == '':
+                next = request.args.get('next')
             if not redirect_valid(next): next = None
             return redirect(next or url_for('index'))
-    return render_template('login.html', title='login', key=key)
+    return render_template('login.html', title='login', sendto=request.args.get('next'))
 
 @app.route('/login/new', methods=['GET', 'POST'])
 def create_user():

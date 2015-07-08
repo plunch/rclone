@@ -1,7 +1,7 @@
 {%extends 'base.html'%}
 {%block main_content %}
 <form action="" method="post" name="login">
-	<input type="hidden" name="csrftoken" value="{{key}}"/>
+	<input type="hidden" name="csrftoken" value="{{get_session_key()}}"/>
 	<p>Username:<input type="text" name="username"/></p>
 	<p>Password:<input type="password" name="password" /></p>
 	<p>Email:<input type="email" name="email" /></p>

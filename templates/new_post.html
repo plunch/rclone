@@ -1,7 +1,7 @@
 {%extends 'base.html'%}
 {%block main_content %}
 <form action="" method="post" name="login">
-	<input type="hidden" name="csrftoken" value="{{key}}"/>
+	<input type="hidden" name="csrftoken" value="{{get_session_key()}}"/>
 	<p>Title:<input type="text" name="title"/></p>
 	<p>Content:<input type="text" name="content" /></p>
 	<p>Link:<input type="uri", name="link" /></p>

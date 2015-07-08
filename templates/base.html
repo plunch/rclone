@@ -23,19 +23,28 @@
 		</div>
 		<div class="header-control">
 			<a class="header-action" href="{{url_for('.index')}}">
-				Frontpage
-			</a>
-			<a class="header-action" href="{{url_for('.index')}}">
 				Section list
 			</a>
+			{% block header_controls %}{% endblock %}
 			{% if current_user.is_authenticated() %}
-			<a class="header-action login" href="{{url_for('.logout', next=request.path)}}">
+			<a class="header-action login" href="{{url_for('.logout', next= request.form.get('next') or request.args.get('next') or request.path)}}">
 				Log out {{current_user.name}}
 			</a>
 			{% else %}
+			<span class="header-action login">
+			<form action="{{url_for('.login', next= request.form.get('next') or request.args.get('next') or request.path)}}"
+			      method="post" name='login'>
+				<input type="hidden" name="csrftoken" value="{{get_form_key()}}"/>
+				<input type="text" name="username"/>
+				<input type="password" name="password"/>
+				<input type="submit" value="Sign in"/>
+			</form>
+			</span>
+			<!--
 			<a class="header-action login" href="{{url_for('.login', next=request.path)}}">
 				Log in
 			</a>
+			-->
 			{% endif %}
 		</div>
 	</div>

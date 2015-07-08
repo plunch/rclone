@@ -1,7 +1,7 @@
 {%extends 'base.html'%}
 {%block main_content %}
 <form action="" method="post" name="newsection">
-	<input type="hidden" name="csrftoken" value="{{key}}"/>
+	<input type="hidden" name="csrftoken" value="{{get_session_key()}}"/>
 	<p>Name:<input type="text" name="section"/></p>
 	<p>Description:<input type="text" name="description" /></p>
 	<p><input type="submit" value="Create section"/></p>
