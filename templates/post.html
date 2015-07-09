@@ -59,15 +59,15 @@ function toggleComment(me, id) {
 		<div id='c{{comment.id}}' class="comment {{loop.cycle('odd', 'even')}}">
 			<div class="commentcontent">
 				<div class='tagline'>
-					<a href="#" onclick="toggleComment(this, '{{comment.id}}');">[+]</a>
 					<a href="{{url_for('.user', username=comment.username)}}">{{comment.username}}</a>
 					at {{comment.created}} <!--({{comment.num_children}} child comments)-->
 				</div>
-				<div id='c{{comment.id}}-hide'>
+				<div>
 					<div class="md">
 					{{markup(comment.content)|safe}}
 					</div>
 					<div class='actionline'>
+						<a href="#" onclick="toggleComment(this, '{{comment.id}}');">[+]</a>
 						{% if current_user.name == comment.username %}
 							<a href="{{url_for('.edit_comment', comment=comment.id)}}">edit</a>
 						{% endif %}
@@ -76,7 +76,7 @@ function toggleComment(me, id) {
 						<a href="mailto:iwantafeature@perlundh.com">favourite</a>
 						<a href="mailto:iwantafeature@perlundh.com">reply</a>
 					</div>
-				<div class="childcomments">
+				<div class="childcomments" id="c{{comment.id}}-hide">
 			{% if loop.last %}
 				{{('</div></div></div></div>' * (loop.depth + 1))|safe}}
 			{% endif %}
