@@ -407,9 +407,16 @@ def edit_comment(comment):
         abort(400)
     pass
 
-@app.route('/p/<int:postid>/comment', methods = ['POST'])
+@app.route('/p/<int:postid>/comment', methods = ['GET', 'POST'])
+@app.route('/p/<int:postid>/comment/<int:parent>', methods = ['GET', 'POST'])
 @login_required
 def post_comment(postid, parent=0):
+    if request.method == 'GET':
+        if parent > 0:
+            return redirect(url_for('.post', id=postid, _anchor='c' + str(parent)))
+        else:
+            return redirect(url_for('.post', id=postid))
+
     key = get_form_key()
     tok = request.form['csrftoken']
     content = request.form['content']
@@ -423,9 +430,19 @@ def post_comment(postid, parent=0):
 
     commentid=0
     if parent > 0:
+        # Need to validate parent
         cur = g.db.cursor()
-        cur.execute('insert into comments (post, user, content, depth, lineage) values (%s, %s, %s, 0, (select lineage from comments wher id = %s limit 1))',
-                     (postid, current_user.id, content, parent))
+        cur.execute('select id, depth, lineage, post from comments where id = %s', (parent,))
+        if cur.rowcount == 0:
+            abort(404)
+
+        par = cur.fetchone()
+        if par.post != postid:
+            abort(400)
+
+        cur.execute('insert into comments (post, user, content, depth, lineage, parent) values \
+                     (%s, %s, %s, %s, %s, %s)',
+                     (postid, current_user.id, content, par.depth + 1, par.lineage, par.id))
         cur.execute('select LAST_INSERT_ID() as l')
         commentid = cur.fetchone().l
         cur.execute('update comments set lineage = concat(lineage, "-", %s) where id = %s', (commentid, commentid))

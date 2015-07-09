@@ -11,6 +11,14 @@ function toggleComment(me, id, nc) {
 		el.style.display = 'block';
 	}
 }
+function toggleVisible(id) {
+	var el = document.getElementById(id);
+	if (el.style.display === 'none') {
+		el.style.display = 'block';
+	} else {
+		el.style.display = 'none';
+	}
+}
 </script>
 {%endblock%}
 
@@ -78,7 +86,15 @@ function toggleComment(me, id, nc) {
 						<a href="mailto:iwantafeature@perlundh.com">report</a>
 						<a href="mailto:iwantafeature@perlundh.com">message</a>
 						<a href="mailto:iwantafeature@perlundh.com">favourite</a>
-						<a href="mailto:iwantafeature@perlundh.com">reply</a>
+						<a href="javascript: void 0;" onclick="toggleVisible('c{{comment.id}}-reply');">reply</a>
+					</div>
+					<div id="c{{comment.id}}-reply" class='editbox' style="display: none">
+						<form action="{{url_for('.post_comment', postid=post.id, parent=comment.id)}}" method='post' name='comment{{comment.id}}'>
+							<input type="hidden" name="csrftoken" value='{{get_session_key()}}'/>
+							<textarea cols=1 rows=6 name='content' placeholder="Be nice!"></textarea>
+							<br/>
+							<input type='submit' value='Share!'/>
+						</form>
 					</div>
 				<div class="childcomments" id="c{{comment.id}}-hide">
 			{% if loop.last %}

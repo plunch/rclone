@@ -37,8 +37,8 @@
 			<form action="{{url_for('.login', next= request.form.get('next') or request.args.get('next') or request.path)}}"
 			      method="post" name='login'>
 				<input type="hidden" name="csrftoken" value="{{get_form_key()}}"/>
-				<input type="text" name="username"/>
-				<input type="password" name="password"/>
+				<input type="text" placeholder="username" name="username"/>
+				<input type="password" placeholder="password" name="password"/>
 				<input type="submit" value="Sign in"/>
 			</form>
 			</span>
