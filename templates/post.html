@@ -1,10 +1,10 @@
 {%extends 'base.html'%}
 {% block head %}
 <script>
-function toggleComment(me, id) {
+function toggleComment(me, id, nc) {
 	var el = document.getElementById('c' + id + '-hide');
 	if (me.innerHTML === '[+]') {
-		me.innerHTML = '[-]';
+		me.innerHTML = '[-](' + nc +' hidden children)';
 		el.style.display = 'none';
 	} else {
 		me.innerHTML = '[+]';
@@ -67,7 +67,11 @@ function toggleComment(me, id) {
 					{{markup(comment.content)|safe}}
 					</div>
 					<div class='actionline'>
-						<a href="#" onclick="toggleComment(this, '{{comment.id}}');">[+]</a>
+						{% if comment.num_children > 0 %}
+						<a href="javascript: void 0;" onclick="toggleComment(this, '{{comment.id}}', {{comment.num_children}});">[+]</a>
+						{% else %}
+						<a href="javascript: void 0;">[0]</a>
+						{% endif %}
 						{% if current_user.name == comment.username %}
 							<a href="{{url_for('.edit_comment', comment=comment.id)}}">edit</a>
 						{% endif %}
