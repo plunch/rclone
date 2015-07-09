@@ -1,27 +1,14 @@
 {%extends 'base.html'%}
-{%block head %}
+{% block head %}
 <script>
-function toggleComment(id) {
-	var c = document.getElementById(id);
-	if (!c.hasChildNodes()) {
-		return;
-	}
-	for (var i = 0; i < c.childNodes.length; i++) {
-		if (!c.childNodes[i].hasChildNodes()) continue;
-
-		if (c.childNodes[i].classList.contains('commentcontent')) {
-			for(var j = 0; j < c.childNodes[i].length; j++) {
-				var e = c.childNodes[i].childNodes[j];
-
-				if (e.classList.contains('hideontoggle')) {
-					if (e.style.display === 'none') {
-						e.style.display = 'block';
-					} else {
-						e.style.display = 'none';
-					}
-				}
-			}
-		}
+function toggleComment(me, id) {
+	var el = document.getElementById('c' + id + '-hide');
+	if (me.innerHTML === '[+]') {
+		me.innerHTML = '[-]';
+		el.style.display = 'none';
+	} else {
+		me.innerHTML = '[+]';
+		el.style.display = 'block';
 	}
 }
 </script>
@@ -72,14 +59,7 @@ function toggleComment(id) {
 		<div id='c{{comment.id}}' class="comment {{loop.cycle('odd', 'even')}}">
 			<div class="commentcontent">
 				<div class='tagline'>
-					<a href="#" onclick="var el = document.getElementById('c{{comment.id}}-hide');
-		 			                     if (this.innerHTML === '[+]') {
-		 			                     	this.innerHTML = '[-]';
-		 			                     	el.style.display = 'none';
-		 			                     } else {
-		 			                     	this.innerHTML = '[+]';
-		 			                     	el.style.display = 'block';
-		 			                     }">[+]</a>
+					<a href="#" onclick="toggleComment(this, '{{comment.id}}');">[+]</a>
 					<a href="{{url_for('.user', username=comment.username)}}">{{comment.username}}</a>
 					at {{comment.created}} <!--({{comment.num_children}} child comments)-->
 				</div>
