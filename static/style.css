@@ -93,9 +93,11 @@
 	padding: .2em;
 }
 
+/*
 .comment:hover > .commentcontent {
 	background-color: #efefef;
 }
+*/
 
 .comment p {
 	padding-left: 0.5em;

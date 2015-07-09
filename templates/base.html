@@ -6,6 +6,8 @@
 		<!--<link rel="shortcut icon" href="#">-->
 		<link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
 		<meta name="viewport" content="initial-scale=1">
+		{% block head %}
+		{% endblock %}
 	</head>
 	<body>
 {% block title %}{% endblock %}

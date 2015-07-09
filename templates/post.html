@@ -1,4 +1,32 @@
 {%extends 'base.html'%}
+{%block head %}
+<script>
+function toggleComment(id) {
+	var c = document.getElementById(id);
+	if (!c.hasChildNodes()) {
+		return;
+	}
+	for (var i = 0; i < c.childNodes.length; i++) {
+		if (!c.childNodes[i].hasChildNodes()) continue;
+
+		if (c.childNodes[i].classList.contains('commentcontent')) {
+			for(var j = 0; j < c.childNodes[i].length; j++) {
+				var e = c.childNodes[i].childNodes[j];
+
+				if (e.classList.contains('hideontoggle')) {
+					if (e.style.display === 'none') {
+						e.style.display = 'block';
+					} else {
+						e.style.display = 'none';
+					}
+				}
+			}
+		}
+	}
+}
+</script>
+{%endblock%}
+
 {%block pagetitle %}
 <h1><a href="{{title}}">{{title}}</a></h1>
 {%endblock%}
@@ -36,33 +64,41 @@
 		{% if not loop.first %}
 			{% set foo = last_depth - comment.depth %}
 			{% if foo >= 0 %}
-				{{('</div></div>' * (foo + 1))|safe}}
+				{{('</div></div></div></div>' * (foo + 1))|safe}}
 			{% endif %}
 		{% endif %}
 		{% set last_depth = comment.depth %}
 
 		<div id='c{{comment.id}}' class="comment {{loop.cycle('odd', 'even')}}">
 			<div class="commentcontent">
-			<div class='tagline'><a href="{{url_for('.user', username=comment.username)}}">{{comment.username}}</a>
-				at {{comment.created}} <!--({{comment.num_children}} child comments)--></div>
-			<p class="md">
-			{{markup(comment.content)|safe}}
-			</p>
-			<div class='actionline'>
-				{#{% if current_user.is_authenticated() %} #}
-					{% if current_user.name == comment.username %}
-						<a href="{{url_for('.edit_comment', comment=comment.id)}}">edit</a>
-					{% endif %}
-					<a href="mailto:iwantafeature@perlundh.com">report</a>
-					<a href="mailto:iwantafeature@perlundh.com">message</a>
-					<a href="mailto:iwantafeature@perlundh.com">favourite</a>
-					<a href="mailto:iwantafeature@perlundh.com">reply</a>
-				{#{% endif %}#}
-			</div>
-			</div>
-			<div class="childcomments">
+				<div class='tagline'>
+					<a href="#" onclick="var el = document.getElementById('c{{comment.id}}-hide');
+		 			                     if (this.innerHTML === '[+]') {
+		 			                     	this.innerHTML = '[-]';
+		 			                     	el.style.display = 'none';
+		 			                     } else {
+		 			                     	this.innerHTML = '[+]';
+		 			                     	el.style.display = 'block';
+		 			                     }">[+]</a>
+					<a href="{{url_for('.user', username=comment.username)}}">{{comment.username}}</a>
+					at {{comment.created}} <!--({{comment.num_children}} child comments)-->
+				</div>
+				<div id='c{{comment.id}}-hide'>
+					<div class="md">
+					{{markup(comment.content)|safe}}
+					</div>
+					<div class='actionline'>
+						{% if current_user.name == comment.username %}
+							<a href="{{url_for('.edit_comment', comment=comment.id)}}">edit</a>
+						{% endif %}
+						<a href="mailto:iwantafeature@perlundh.com">report</a>
+						<a href="mailto:iwantafeature@perlundh.com">message</a>
+						<a href="mailto:iwantafeature@perlundh.com">favourite</a>
+						<a href="mailto:iwantafeature@perlundh.com">reply</a>
+					</div>
+				<div class="childcomments">
 			{% if loop.last %}
-				{{('</div></div>' * (loop.depth + 1))|safe}}
+				{{('</div></div></div></div>' * (loop.depth + 1))|safe}}
 			{% endif %}
 	{% else %}
 	<p>No comments yet.</p>
