@@ -45,14 +45,14 @@
 	margin-top: 1em;
 }
 
-@media screen and (min-width: 500px) {
+@media screen and (min-width: 34.25em) {
 	.editbox textarea {
-		width: 500px;
+		width: 34.25em;
 		/*height: 100px;*/
 	}
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 37.5em) {
 	.editbox textarea {
 		width: 98%;
 		/*height: 10em;*/
@@ -193,7 +193,7 @@ body {
 	margin: 0em;
 }
 
-@media screen and (min-width: 500px) {
+@media screen and (min-width: 34.25em) {
 	body {
 		background-image: url("/static/escheresque/escheresque.png");
 	}
@@ -247,18 +247,18 @@ a:hover {
 	padding: 1em 1em 1em 1em;
 }
 
-@media screen and (max-width: 671px) {
+@media screen and (max-width: 41.93em) {
 	.login.large {
 		display: none;
 	}
 }
-@media screen and (min-width: 672px) {
+@media screen and (min-width: 41.94em) {
 	.login.small {
 		display: none;
 	}
 }
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 34.25em) {
 	.header-action {
 		display: block;
 		border-top: 1px solid #eeeeee;
@@ -274,7 +274,7 @@ a:hover {
 	height: 1.2em;
 }
 
-@media screen and (min-width: 500px) {
+@media screen and (min-width: 34.25em) {
 	.login {
 		right: 0px;
 		position: absolute;
@@ -296,7 +296,7 @@ a:hover {
 }
 
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 34.25em) {
 	.container {
 	}
 	.header-content {
@@ -304,7 +304,7 @@ a:hover {
 	}
 }
 
-@media screen and (max-width: 1300px) and (min-width: 500px) {
+@media screen and (max-width: 81.25em) and (min-width: 34.25em) {
 	.container {
 		position: relative;
 		width: 90%;
@@ -316,7 +316,7 @@ a:hover {
 	}
 }
 
-@media screen and (min-width: 1300px) {
+@media screen and (min-width: 81.25em) {
 	.container {
 		position: relative;
 		width: 60%;
