@@ -82,7 +82,9 @@
        			style="background-image: url('{{url_for('static', filename='banners/' + header_img)}}');"
        		{% endif %}
        		>
+		<div class='header-content-filter'>
 	{% block pagetitle %}<h1>{{title}}</h1>{% endblock%}
+		</div>
 		</div>
 		<div id='header-control' class="header-control">
 			<a class="header-action" href="{{url_for('.index')}}">
