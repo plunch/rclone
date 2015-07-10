@@ -22,8 +22,9 @@
 						small[i].style.display = '';
 					}
 				} else {
-					var largeel = document.querySelectorAll('.login.large')[0];
-					if (largeel.style.display === 'none') {
+					var largeel = document.querySelectorAll('.login.large');
+					if (largeel.length === 0) return;
+					if (largeel[0].style.display === 'none') {
 						var filler = document.getElementById('header-filler');
 						// Check if header-control (element) is wide enough
 						if (hiddenWidth > 0 && filler.clientWidth > hiddenWidth) {
