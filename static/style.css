@@ -16,7 +16,7 @@
 
 .post-full {
 	/*border: 1px solid #dddddd;*/
-	box-shadow: inset 0px 0px 4px #aaa;
+	box-shadow: inset 0em 0em .25em #aaa;
 	padding: 1em;
 }
 
@@ -82,7 +82,7 @@
 }
 
 .childcomments {
-		border-left: 3px #cccccc solid;
+		border-left: .1875em #cccccc solid;
 }
 
 .comment:hover > .childcomments {
@@ -122,7 +122,7 @@
 	/*border: solid 1px #008ba3;*/
 	margin: 0.7em;
 	margin-top: 0em;
-	box-shadow: -1px 3px 4px 0px #888;
+	box-shadow: -0.0625em 0.1875em 0.25em 0em #888;
 	
 	-moz-animation-name: dropHeader;
 	-moz-animation-iteration-count: 1;
@@ -228,7 +228,7 @@ a:hover {
 .header-content {
  	background: #999999;
 	color: #ffffff;
-	text-shadow: -1px 1px 3px #555;
+	text-shadow: -0.0625em 0.0625em 0.1875em #555;
 	background: linear-gradient(to left, #ffffff 0%,#e2e2e2 24%,#fcfcfc 61%,#bcbcbc 100%);
 }
 
@@ -245,7 +245,7 @@ a:hover {
 	position: relative;
 	z-index: 1;
 	background: #ffffff;
-  box-shadow: 2px 0 15px -2px #888;
+  box-shadow: .125em 0 0.9375em -0.125em #888;
 	overflow: hidden;
 	display: flex;
 	align-items: stretch;
@@ -269,8 +269,8 @@ a:hover {
 @media screen and (max-width: 34.25em) {
 	.header-action {
 		display: block;
-		border-top: 1px solid #eeeeee;
-		border-bottom: 1px solid #eeeeee;
+		border-top: 0.0625em solid #eeeeee;
+		border-bottom: 0.0625em solid #eeeeee;
 	}
 	
 	.header-action + .header-action, .header-action + .header-filler {
@@ -290,14 +290,14 @@ a:hover {
 input {
 	vertical-align: middle;
 	font: inherit;
-	border: 1px solid gray;
+	border: 0.0625em solid gray;
 	font-size: 1.05em;
-	border-radius: 2px;
+	border-radius: 0.125em;
 }
 
 input[type=text], input[type=password] {
-	box-shadow: inset -1px 1px 3px 0px #bbb;
-	border: 1px solid gray;
+	box-shadow: inset -0.0625em 0.0625em 0.1875em 0em #bbb;
+	border: 0.0625em solid gray;
 	padding-left: .5em;
 	padding-right: .5em;
 	/*
@@ -325,8 +325,8 @@ input[type=text], input[type=password] {
 	
 	.header-action {
 		display: inline-block;
-		border-left: 1px solid #eeeeee;
-		border-right: 1px solid #eeeeee;
+		border-left: 0.0625em solid #eeeeee;
+		border-right: 0.0625em solid #eeeeee;
 		flex: none;
 	}	
 }
@@ -412,8 +412,8 @@ h5 {
 td {
 	padding-left: 1em;
 	padding-right: 1em;
-	border-left: solid 1px #eeeeee;
-	border-right: solid 1px #eeeeee;
+	border-left: solid 0.0625em #eeeeee;
+	border-right: solid 0.0625em #eeeeee;
 }
 	
 hr {
@@ -460,7 +460,7 @@ hr {
   /*color: black;*/
   background-color: #eeeeee;
   padding: .5em;
-  border: 1px solid #aaaaaa;
+  border: 0.0625em solid #aaaaaa;
 }
 .md {
 	word-wrap:break-word;
