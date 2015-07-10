@@ -5,6 +5,62 @@
 		<title>{{title}}</title>
 
 		{% block head %}{% endblock %}
+		<script type='text/javascript'>
+			var hiddenWidth = 0;
+			window.onresize = function() {
+				var element = document.getElementById('header-control');
+				
+				var style = window.getComputedStyle(element);
+				if (style.getPropertyValue('flex-direction') === 'column') {
+					// Let CSS handle this
+					var large = document.querySelectorAll('.login.large');
+					for(var i = 0; i < large.length; i++) {
+						large[i].style.display = '';
+					}
+					var small = document.querySelectorAll('.login.small');
+					for(var i = 0; i < small.length; i++) {
+						small[i].style.display = '';
+					}
+				} else {
+					var largeel = document.querySelectorAll('.login.large')[0];
+					if (largeel.style.display === 'none') {
+						var filler = document.getElementById('header-filler');
+						// Check if header-control (element) is wide enough
+						if (hiddenWidth > 0 && filler.clientWidth > hiddenWidth) {
+							// Large enough, let's make it visible
+							var large = document.querySelectorAll('.login.large');
+							for(var i = 0; i < large.length; i++) {
+								large[i].style.display = 'inline-block';
+							}
+							var small = document.querySelectorAll('.login.small');
+							for(var i = 0; i < small.length; i++) {
+								small[i].style.display = 'none';
+							}
+						} else {
+							// The header is not wide enough to show
+							// the large login, so we'll just mainain status quo
+						}
+					} else {
+						if (element.scrollWidth > element.clientWidth) {
+							hiddenWidth = 0;
+							// header-control is being overflowed
+							var large = document.querySelectorAll('.login.large');
+							for(var i = 0; i < large.length; i++) {
+								if (large[i].scrollWidth > hiddenWidth) hiddenWidth = large[i].scrollWidth;
+								large[i].style.display = 'none';
+							}
+							var small = document.querySelectorAll('.login.small');
+							for(var i = 0; i < small.length; i++) {
+								small[i].style.display = 'inline-block';
+							}
+						} else {
+							// Header-control is not being overflowed and we are
+							// showing the large login. all is well
+						}
+					}
+				}
+			}
+		</script>
 		<!--<link rel="shortcut icon" href="#">-->
 		<link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
 		<meta name="viewport" content="initial-scale=1">
@@ -23,12 +79,12 @@
 		<div class="header-content">
 	{% block pagetitle %}<h1>{{title}}</h1>{% endblock%}
 		</div>
-		<div class="header-control">
+		<div id='header-control' class="header-control">
 			<a class="header-action" href="{{url_for('.index')}}">
 				Section list
 			</a>
 			{% block header_controls %}{% endblock %}
-			<span class="header-filler">
+			<span id="header-filler" class="header-filler">
 			</span>
 			{% if current_user.is_authenticated() %}
 			<a class="header-action login" href="{{url_for('.logout', next= request.form.get('next') or request.args.get('next') or request.path)}}">
