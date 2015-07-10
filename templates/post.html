@@ -1,4 +1,9 @@
 {%extends 'base.html'%}
+{% block header_controls %}
+<a class='header-action' href='{{title}}'>
+	Section home
+</a>
+{% endblock %}
 {% block head %}
 <script>
 function toggleComment(me, id, nc) {
