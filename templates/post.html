@@ -86,9 +86,14 @@ function toggleVisible(id) {
 						<a href="mailto:iwantafeature@perlundh.com">report</a>
 						<a href="mailto:iwantafeature@perlundh.com">message</a>
 						<a href="mailto:iwantafeature@perlundh.com">favourite</a>
-						<a href="javascript: void 0;" onclick="toggleVisible('c{{comment.id}}-reply');">reply</a>
+						<noscript>
+							<a href="{{url_for('.post', id=post.id, commenton=comment.id, _anchor='c' + (comment.id|string))}}">reply</a>
+						</noscript>
+						<script type='text/javascript'>
+						document.write('<a href="javascript: void 0;" onclick="toggleVisible(\'c{{comment.id}}-reply\');">reply</a>');
+						</script>
 					</div>
-					<div id="c{{comment.id}}-reply" class='editbox' style="display: none">
+					<div id="c{{comment.id}}-reply" class='editbox' {% if request.args.get('commenton') != (comment.id|string) %}style="display:none;"{% endif%}>
 						<form action="{{url_for('.post_comment', postid=post.id, parent=comment.id)}}" method='post' name='comment{{comment.id}}'>
 							<input type="hidden" name="csrftoken" value='{{get_session_key()}}'/>
 							<textarea cols=1 rows=6 name='content' placeholder="Be nice!"></textarea>
