@@ -313,14 +313,14 @@ def section(section=None):
             abort(404)
         sect = cur.fetchone()
 
-        return render_template('sectionlist.html', title='Viewing section {0}'.format(section, sect.description), posts=posts, sect=sect)
+        return render_template('sectionlist.html', title='Viewing section {0}'.format(section, sect.description), posts=posts, sect=sect, header_img=sect.banner)
 
 @app.route('/p/<int:id>')
 def post(id):
     cur = g.db.cursor()
     cur.execute("select p.id as id, p.title as title, p.content as content, \
                         p.type as type, u.name as name, p.created as created, \
-                        s.name as section \
+                        s.name as section, s.banner as banner \
                  from posts p \
                  inner join users u on u.id = p.user \
                  inner join sections s on s.id = p.section \
@@ -340,7 +340,7 @@ def post(id):
                         u.name as username, c.depth as depth, (select count(*) from comments c2 where c2.lineage like concat(c.lineage, "%%") and c2.lineage<>c.lineage) as num_children \
                  from comments c inner join users u on u.id = c.user where c.post = %s order by c.lineage', (id,))
     p.comments = cur.fetchall()
-    return render_template('post.html', title='/s/' + row.section, post=p, key=get_form_key())
+    return render_template('post.html', title='/s/' + row.section, post=p, key=get_form_key(), header_img=row.banner)
 
 @app.route('/p/<int:id>/delete', methods=['POST'])
 @login_required
@@ -490,7 +490,7 @@ def user(username):
 @login_required
 def newpost(section):
     cur = g.db.cursor()
-    cur.execute("select s.id as id, s.name as name, s.description as description from sections s where s.name = %s", (section,))
+    cur.execute("select * from sections s where s.name = %s", (section,))
     if cur.rowcount == 0:
         abort(404)
 
@@ -539,7 +539,7 @@ def newpost(section):
                 g.db.commit()
                 return redirect(url_for('.post', id=postid))
 
-    return render_template('new_post.html', title="Create a new post in /s/" + section, key=key)
+    return render_template('new_post.html', title="Create a new post in /s/" + section, key=key, header_img=row.banner)
 
 @app.route('/new_section', methods=['GET', 'POST'])
 @login_required

@@ -77,7 +77,11 @@
 
 <div class="container">
 	<div class="header">
-		<div class="header-content">
+		<div class="header-content" 
+       		{% if header_img %}
+       			style="background-image: url('{{url_for('static', filename='banners/' + header_img)}}');"
+       		{% endif %}
+       		>
 	{% block pagetitle %}<h1>{{title}}</h1>{% endblock%}
 		</div>
 		<div id='header-control' class="header-control">

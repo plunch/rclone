@@ -229,7 +229,7 @@ a:hover {
  	background: #999999;
 	color: #ffffff;
 	text-shadow: -1px 1px 3px #555;
-	background-image: url("/static/footer_lodyas.png");
+	background: linear-gradient(to left, #ffffff 0%,#e2e2e2 24%,#fcfcfc 61%,#bcbcbc 100%);
 }
 
 .header-content a {
