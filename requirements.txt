@@ -1,0 +1,8 @@
+pip
+	mysqlclient
+	mysqldbda
+	Markdown
+	Flask
+	Flask-Login
+
+
