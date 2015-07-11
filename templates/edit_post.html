@@ -1,8 +1,8 @@
 {%extends 'base.html'%}
 {%block main_content %}
-<form action="" method="post" name="edit">
+<form class='editbox' action="" method="post" name="edit">
 	<input type="hidden" name="csrftoken" value="{{get_form_key()}}"/>
-	<textarea class='editbox' cols=80 rows=15 name="content">{{post.content}}</textarea><br/>
+	<textarea cols=80 rows=15 name="content">{{post.content}}</textarea><br/>
 	<input type="submit" value="Edit post"/>
 </form>
 <hr/>

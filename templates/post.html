@@ -53,7 +53,7 @@ function toggleVisible(id) {
 		<div class='editbox'>
 			<form action='{{url_for('.post_comment', postid=post.id)}}' method='post' name='comment'>
 				<input type="hidden" name="csrftoken" value='{{get_session_key()}}'/>
-				<textarea cols=1 rows=10 name='content' placeholder="What is your contribution today?"></textarea>
+				<textarea cols= rows=10 name='content' placeholder="What is your contribution today?"></textarea>
 				<br/>
 				<input type='submit' value='Share!'/>
 			</form>
@@ -77,7 +77,7 @@ function toggleVisible(id) {
 				</div>
 				<div>
 					{% if current_user.name == comment.username %}
-					<form action="{{url_for('.edit_comment', comment=comment.id)}}" method='post'
+					<form class='editbox' action="{{url_for('.edit_comment', comment=comment.id)}}" method='post'
 					      name='comment{{comment.id}}-edit' id='comment{{comment.id}}-edit'
 	   					{% if editing != comment.id %} style="display: none;" {%endif%}>
 						<input type="hidden" name="csrftoken" value='{{get_session_key()}}'/>
