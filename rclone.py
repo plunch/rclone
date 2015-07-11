@@ -397,15 +397,42 @@ def edit_post(id):
 
     return render_template('edit_post.html', title='Edit post ' + post.title, post=post, key=key)
 
-@app.route('/c/<int:comment>/edit', methods = ['POST'])
+@app.route('/c/<int:comment>/edit', methods = ['POST', 'GET'])
 @login_required
 def edit_comment(comment):
-    key = get_form_key()
-    tok = request.form['csrftoken']
-    content = request.form['content']
-    if key != tok:
-        abort(400)
-    pass
+    if request.method == 'POST':
+        key = get_form_key()
+        tok = request.form['csrftoken']
+        content = request.form['content']
+        if key != tok:
+            abort(400)
+
+    cur = g.db.cursor()
+    cur.execute("select * from comments where id = %s", (comment,))
+    cur.execute("select p.id as id, p.title as title, p.content as content, \
+                        p.type as type, u.name as name, p.created as created, \
+                        s.name as section, s.banner as banner \
+                 from posts p \
+                 inner join users u on u.id = p.user \
+                 inner join sections s on s.id = p.section \
+                 where p.id = %s and p.visible = 1 limit 1", (cur.fetchone().post,))
+    if cur.rowcount == 0:
+        abort(404)
+    p = Post()
+    row = cur.fetchone()
+    p.id = row.id
+    p.title = row.title
+    p.content = row.content
+    p.type = row.type
+    p.user = row.name
+    p.created = row.created
+
+    cur.execute('select c.id as id, c.content as content, c.created as created, c.parent as parent, \
+                        u.name as username, c.depth as depth, (select count(*) from comments c2 where c2.lineage like concat(c.lineage, "%%") and c2.lineage<>c.lineage) as num_children \
+                 from comments c inner join users u on u.id = c.user where c.post = %s order by c.lineage', (p.id,))
+    p.comments = cur.fetchall()
+
+    return render_template('post.html', title='/s/' + row.section, post=p, header_img=row.banner, editing=comment)
 
 @app.route('/p/<int:postid>/comment', methods = ['GET', 'POST'])
 @app.route('/p/<int:postid>/comment/<int:parent>', methods = ['GET', 'POST'])

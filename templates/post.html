@@ -76,7 +76,18 @@ function toggleVisible(id) {
 					at {{comment.created}} <!--({{comment.num_children}} child comments)-->
 				</div>
 				<div>
-					<div class="md">
+					{% if current_user.name == comment.username %}
+					<form action="{{url_for('.edit_comment', comment=comment.id)}}" method='post'
+					      name='comment{{comment.id}}-edit' id='comment{{comment.id}}-edit'
+	   					{% if editing != comment.id %} style="display: none;" {%endif%}>
+						<input type="hidden" name="csrftoken" value='{{get_session_key()}}'/>
+						<textarea cols=1 rows=6 name='content'>{{comment.content}}</textarea>
+						<br/>
+						<input type='submit' value='Edit'/>
+					</form>
+					{% endif %}
+					<div class="md" id="c{{comment.id}}-content"
+	   					{% if editing and editing == comment.id %} style="display: none;" {%endif%}>
 					{{markup(comment.content)|safe}}
 					</div>
 					<div class='actionline'>
@@ -86,7 +97,12 @@ function toggleVisible(id) {
 						<a href="javascript: void 0;">[0]</a>
 						{% endif %}
 						{% if current_user.name == comment.username %}
-							<a href="{{url_for('.edit_comment', comment=comment.id)}}">edit</a>
+							<noscript>
+								<a href="{{url_for('.edit_comment', comment=comment.id, _anchor='c' + (comment.id|string))}}">edit</a>
+							</noscript>
+							<script type='text/javascript'>
+							document.write('<a href="javascript: void 0;" onclick="toggleVisible(\'comment{{comment.id}}-edit\'); toggleVisible(\'c{{comment.id}}-content\');">edit</a>');
+							</script>
 						{% endif %}
 						<a href="mailto:iwantafeature@perlundh.com">report</a>
 						<a href="mailto:iwantafeature@perlundh.com">message</a>
