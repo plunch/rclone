@@ -407,6 +407,21 @@ def edit_comment(comment):
         if key != tok:
             abort(400)
 
+        cur = g.db.cursor()
+        cur.execute('select * from comments where id = %s', (comment,))
+        if cur.rowcount == 0: abort(404)
+
+        c = cur.fetchone()
+        if c.user != current_user.id:
+            abort(403)
+
+        if len(content) >= app.config['MINCONTENTLEN']:
+            cur.execute('update comments set content = %s where id = %s', (content, comment))
+            g.db.commit()
+            return redirect(url_for('.post', id=c.post, _anchor='c' + str(comment)))
+        else:
+            flash('You need to flesh out your comment a bit more', categoy='error');
+
     cur = g.db.cursor()
     cur.execute("select * from comments where id = %s", (comment,))
     cur.execute("select p.id as id, p.title as title, p.content as content, \
