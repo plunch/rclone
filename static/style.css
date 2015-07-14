@@ -16,7 +16,7 @@
 
 .post-full {
 	/*border: 1px solid #dddddd;*/
-	box-shadow: inset 0em 0em .25em #aaa;
+	box-shadow: 0em .08em .185em #aaa;
 	padding: 1em;
 }
 
@@ -207,18 +207,19 @@ body {
 
 
 a {
-	transition-duration: 0.2s;
+	/*transition-duration: 0.2s;*/
 	text-decoration: none;
 	font-weight: bold;
 	color: #777777;
 }
 
 a:hover {
-	transition-duration: 0.2s;
+	/*transition-duration: 0.2s;*/
 	text-decoration: underline;
 }
 
 .container {
+	box-shadow: 0em 0em .215em #aaa;
 	background: white;
 	padding: 0em;
 }
@@ -245,14 +246,38 @@ a:hover {
 	position: relative;
 	z-index: 1;
 	background: #ffffff;
-  box-shadow: .125em 0 0.9375em -0.125em #888;
-	overflow: hidden;
+	box-shadow: 0em 0.1875em .125em rgba(0, 0, 0, 0.2);
+	/*overflow: hidden;*/
 	display: flex;
 	align-items: stretch;
 }
 
 .header-action {
 	padding: 1em 1em 1em 1em;
+}
+
+.header-action:hover {
+	box-shadow: 0em .5em 0em -.2em white;
+	z-index: -1;
+	background: gray;
+	color: white;
+}
+
+/*
+.header-action:hover {
+	background-color: #aaa;
+	color: white;
+	box-shadow: inset 0em 0em .185em #777;
+}
+
+.header-action:active {
+	box-shadow: inset 0em 0em .4em #333;
+}*/
+
+.login.large:hover {
+	color: inherit;
+	background-color: white;
+	box-shadow: none;
 }
 
 @media screen and (max-width: 41.93em) {
@@ -287,26 +312,64 @@ a:hover {
 	flex: 0 1 auto;
 }
 
-input {
+input, .chkcontainer {
 	vertical-align: middle;
 	font: inherit;
-	border: 0.0625em solid gray;
+	/*border: 0.0625em solid gray;*/
+	border: 1px #aaa solid;
 	font-size: 1.05em;
-	border-radius: 0.125em;
+	/*border-radius: 0.125em;*/
+}
+
+input[type=submit] {
+	background-color: rgb(250,250,250);
+	cursor: pointer;
+}
+
+
+.chkcontainer {background-color: rgb(250,250,250);}
+
+input[type=submit]:hover {
+	background-color: rgb(240,240,240);
+}
+
+.chkcontainer {
+	text-align: center;
+	vertical-align: middle;
+	padding-left: 0.4rem;
+	padding-right: 0.4rem;
+}
+.chkcontainer > input {
+	margin: 0px;
+	padding: 0px;
+	position: relative;
+	bottom: 0.05rem;
+}
+
+input + input, input + .chkcontainer, .chkcontainer + input {
+	margin-left: -1px;
 }
 
 input[type=text], input[type=password] {
-	box-shadow: inset -0.0625em 0.0625em 0.1875em 0em #bbb;
-	border: 0.0625em solid gray;
+	background: transparent none repeat scroll 0% 0%;
+	box-shadow: inset 0 0.0625em 0.1675em 0em rgba(0,0,0,.2);
+	
 	padding-left: .5em;
 	padding-right: .5em;
-	/*
-	padding-top: .1em;
-	padding-bottom: .1em;*/
 	vertical-align: middle;
-	/*margin-top: -.1em;*/
 	font: inherit;
 }
+
+input[type=text]:hover, input[type=password]:hover, .chkcontainer:hover {
+	border-color: rgb(120, 120, 120);
+	z-index: 1;
+}
+
+input[type=text]:focus, input[type=password]:focus {
+	border-color: rgb(80, 80, 80);
+	z-index: 2;
+}
+
 
 .login.large > form {
 	margin-top: -0.223em;
@@ -325,8 +388,8 @@ input[type=text], input[type=password] {
 	
 	.header-action {
 		display: inline-block;
-		border-left: 0.0625em solid #eeeeee;
-		border-right: 0.0625em solid #eeeeee;
+		/*border-left: 0.0625em solid #eeeeee;
+		border-right: 0.0625em solid #eeeeee;*/
 		flex: none;
 	}	
 }
@@ -334,15 +397,6 @@ input[type=text], input[type=password] {
 .header-control > .header-filler {
 	flex: 2 2 auto;
 }
-
-.header-action {
-	background-color: white;	
-}
-
-.header-action:hover {
-	background: linear-gradient(#ffffff, #eeeeee);
-}
-
 
 .header-content-filter {
 	background: linear-gradient(to right, rgba(1,1,1,.3) 15%, rgba(255,255,255,0) 50%);
@@ -377,6 +431,11 @@ input[type=text], input[type=password] {
 	
 	.content, .header-content-filter {
 		padding: 1.5em;
+	}
+
+	.header-content-filter {
+		padding: 1em;
+		font-size: 1.5em;
 	}
 }
 

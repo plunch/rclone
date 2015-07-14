@@ -8,11 +8,11 @@
 <script>
 function toggleComment(me, id, nc) {
 	var el = document.getElementById('c' + id + '-hide');
-	if (me.innerHTML === '[+]') {
-		me.innerHTML = '[-](' + nc +' hidden children)';
+	if (me.innerHTML === '[-]') {
+		me.innerHTML = '[+](' + nc +' hidden children)';
 		el.style.display = 'none';
 	} else {
-		me.innerHTML = '[+]';
+		me.innerHTML = '[-]';
 		el.style.display = 'block';
 	}
 }
@@ -92,7 +92,7 @@ function toggleVisible(id) {
 					</div>
 					<div class='actionline'>
 						{% if comment.num_children > 0 %}
-						<a href="javascript: void 0;" onclick="toggleComment(this, '{{comment.id}}', {{comment.num_children}});">[+]</a>
+						<a href="javascript: void 0;" onclick="toggleComment(this, '{{comment.id}}', {{comment.num_children}});">[-]</a>
 						{% else %}
 						<a href="javascript: void 0;">[0]</a>
 						{% endif %}
