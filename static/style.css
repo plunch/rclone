@@ -16,7 +16,7 @@
 
 .post-full {
 	/*border: 1px solid #dddddd;*/
-	box-shadow: 0em .08em .185em #aaa;
+	box-shadow: 0em .08em .2185em #aaa;
 	padding: 1em;
 }
 
@@ -278,6 +278,11 @@ a:hover {
 	color: inherit;
 	background-color: white;
 	box-shadow: none;
+}
+
+.login.large > form {
+	padding-left: 1px;
+	box-shadow: 0px 0px 3px 0px rgba(0, 0, 0, 0.2);
 }
 
 @media screen and (max-width: 41.93em) {
