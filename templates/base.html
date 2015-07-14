@@ -1,4 +1,4 @@
-<!doctype html>
+l!doctype html>
 <html lang="en">
 	<!-- Stay out of my territory -->
 	<head>
@@ -63,7 +63,10 @@
 			}
 		</script>
 		<!--<link rel="shortcut icon" href="#">-->
-		<link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">
+		{#<link rel="stylesheet" href="{{url_for('static', filename='style.css')}}">#}
+		<style>
+			{% include 'style.css' %}
+		</style>
 		<meta name="viewport" content="initial-scale=1">
 	</head>
 	<body>
