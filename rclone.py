@@ -3,9 +3,11 @@ from MySQLdb.cursors import DictCursor
 import re
 import datetime
 import os
+from random import SystemRandom
 import base64
 import smtplib
 import markdown
+import bcrypt
 from urllib.parse import urlparse
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, send_from_directory, config
 from flask.ext.login import LoginManager, login_user, logout_user, login_required, current_user
@@ -56,7 +58,8 @@ def redirect_valid(uri):
     return True
 
 def generate_password():
-    return (SystemRandom().choice('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!?.,_-="\':;/\\[]{}()<>|') for x in range(0,10))
+    r = SystemRandom()
+    return bytearray([r.choice(b'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!?._-=:') for x in range(0,10)]).decode('ascii')
 
 # Do some function decoration, as it's nicer to always have an AttrDict for
 # accessing the results of the DictCursor.
@@ -143,14 +146,22 @@ def login():
 
         if valid:
             cur = g.db.cursor()
-            cur.execute("select id, name, created from users \
-                         where name = %s and password = %s", (user, pwd))
+            cur.execute("select id, name, created, password from users \
+                         where name = %s", (user,))
             if cur.rowcount == 0:
                 flash('Unknown user or wrong password', category='error')
                 return render_template('login.html', title='login', sendto=request.args.get('next'))
 
-            u = User()
             r = cur.fetchone()
+
+            decoded = r.password.decode('ascii')
+            h = bcrypt.hashpw(pwd, decoded)
+            if h != decoded:
+                flash(h + ' is not ' + decoded)
+                flash('Unknown user or wrong password', category='error')
+                return render_template('login.html', title='login', sendto=request.args.get('next'))
+
+            u = User()
             u.id = r.id
             u.name = str(r.name)
             u.created=r.created
@@ -193,10 +204,11 @@ def create_user():
         if valid:
             cur = g.db.cursor()
             cur.execute("select * from users where name = %s", (user,))
+            hashd = bcrypt.hashpw(pwd, bcrypt.gensalt())
             if cur.rowcount == 0:
-                cur.execute('insert into users (name, password) values (%s, %s)', (user, pwd))
+                cur.execute('insert into users (name, password) values (%s, %s)', (user, hashd))
                 cur.execute("select id, name, created from users \
-                            where name = %s and password = %s", (user, pwd))
+                            where name = %s", (user,))
                 if cur.rowcount == 0:
                     abort(500)
                 u = User()
@@ -238,7 +250,8 @@ def forgot_password():
                         and ult.name = "email" and ul.value = %s limit 1', (email,))
             if cur.rowcount > 0:
                 user = cur.fetchone()
-                newpass = generate_password()
+                p = generate_password()
+                newpass = bcrypt.hashpw(p, bcrypt.gensalt())
                 cur.execute('update users set password = %s where id = %s', (newpass, user.id))
                 g.db.commit()
                 smtp = smtplib.SMTP(app.config['SMTPHOST'], 587)
@@ -249,7 +262,7 @@ def forgot_password():
                 mp = app.config['SMTPPWD']
                 smtp.login(mu, mp)
                 m = Mailer(smtp, app.config['MAILFROM'])
-                m.send_forgot_password(newpass, email, user)
+                m.send_forgot_password(p, email, user)
                 m.close()
 
             # ALWAYS show this message, otherwise some nefarious unknown kan
