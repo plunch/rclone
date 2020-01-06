@@ -1,0 +1,13 @@
+[Unit]
+Description=rclone gunicorn
+After=local-fs.target network.target
+
+[Service]
+User=rclone
+Group=rclone
+Type=simple
+ExecStart=/usr/bin/python3 -m gunicorn.app.wsgiapp rclone:app
+WorkingDirectory=/srv/rclone
+
+[Install]
+WantedBy=multi-user.target
