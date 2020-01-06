@@ -27,7 +27,7 @@ lm.login_view = 'login'
 
 @app.template_global()
 def markup(text):
-    return markdown.markdown(text, app.config['MARKDOWN_EXTENSIONS'], safe_mode="escape")
+    return markdown.markdown(text, extensions=app.config['MARKDOWN_EXTENSIONS'], safe_mode="escape")
 
 def username_valid(u):
     res = re.search('^[0-9a-zA-Z_-]{3,20}$', u)
