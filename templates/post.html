@@ -60,6 +60,7 @@ function toggleVisible(id) {
 		</div>
 		{% endif %}
 <div class="comments">
+	{% set last_depth = 0 %}
 	{% for comment in post.comments %}
 		{% if not loop.first %}
 			{% set foo = last_depth - comment.depth %}
