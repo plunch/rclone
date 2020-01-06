@@ -140,7 +140,7 @@ def login():
         if not password_valid(pwd):
             if valid: flash('Username or password is not valid', category='error')
             valid=False
-        if current_user != None and current_user.is_authenticated():
+        if current_user != None and current_user.is_authenticated:
             if valid: flash('Already logged in', category='error')
             valid=False
 
@@ -197,7 +197,7 @@ def create_user():
         if not email_valid(email):
             flash('Email address is not valid', category='error')
             valid = False
-        if current_user != None and current_user.is_authenticated():
+        if current_user != None and current_user.is_authenticated:
             flash('You cannot create a new user while logged in')
             valid=False
         
@@ -532,7 +532,7 @@ def user(username):
 
     cur.execute("select * from users where name = %s limit 1", (username,))
     user = cur.fetchone()
-    if current_user != None and current_user.is_authenticated():
+    if current_user != None and current_user.is_authenticated:
         # A logged in user is viewing another users page
         if user.id == current_user.id:
             # A logged in user is viewing his own page

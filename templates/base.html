@@ -96,7 +96,7 @@ l!doctype html>
 			{% block header_controls %}{% endblock %}
 			<span id="header-filler" class="header-filler">
 			</span>
-			{% if current_user.is_authenticated() %}
+			{% if current_user.is_authenticated %}
 			<a class="header-action login" href="{{url_for('.logout', next= request.form.get('next') or request.args.get('next') or request.path)}}">
 				Log out {{current_user.name}}
 			</a>
